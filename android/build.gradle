@@ -1,0 +1,14 @@
+// android/build.gradle (raíz)
+
+rootProject.buildDir = '../build'
+
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(':app')
+}
+
+// No configures tareas Kotlin/Java aquí.
+// Nada de options.release, nada de compileOptions, nada de toolchain.
+tasks.register("clean", Delete) {
+    delete rootProject.layout.buildDirectory
+}

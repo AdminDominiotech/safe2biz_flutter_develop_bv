@@ -1,0 +1,30 @@
+pluginManagement {
+    def flutterSdkPath = {
+        def p = new Properties()
+        file("local.properties").withInputStream { p.load(it) }
+        def s = p.getProperty("flutter.sdk")
+        if (s == null) throw new GradleException("flutter.sdk no definido en local.properties")
+        return s
+    }()
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories { google(); mavenCentral(); gradlePluginPortal() }
+}
+
+plugins {
+    id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+    id "com.android.application" version "8.6.1" apply false
+    id "org.jetbrains.kotlin.android" version "1.9.24" apply false
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)  // << permitir repos de proyecto
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+
+rootProject.name = "s2bsafe2biz"
+include(":app")

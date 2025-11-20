@@ -1,0 +1,101 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+// ----- util -----
+def loadProps(File f) {
+    def p = new Properties()
+    if (f.exists()) f.withReader('UTF-8') { p.load(it) }
+    return p
+}
+def localProps         = loadProps(rootProject.file('local.properties'))
+def keystorePropsFile  = rootProject.file('key.properties')
+def keystoreProps      = loadProps(keystorePropsFile)
+def hasKeystore        = keystorePropsFile.exists() && (keystoreProps['storeFile'] ?: '').trim()
+
+// Defaults por si faltan en local.properties
+def FLUTTER_VERSION_CODE = (localProps.getProperty('flutter.versionCode') ?: '1') as Integer
+def FLUTTER_VERSION_NAME = (localProps.getProperty('flutter.versionName') ?: '1.0')
+
+// Si por alguna razón flutter.minSdkVersion no está disponible, usamos 21
+def MIN_SDK_FALLBACK = 21
+
+android {
+    namespace "com.dominiotech.s2bsafe2biz"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId "com.dominiotech.s2bsafe2biz"
+
+        // Usa el valor de Flutter si existe, si no 21
+        // (la extensión 'flutter' la aporta el plugin; si aún no está, evitamos null)
+        def minSdkFromFlutter = (project.hasProperty('flutter') && flutter.hasProperty('minSdkVersion'))
+                ? flutter.minSdkVersion
+                : null
+        minSdkVersion(minSdkFromFlutter ?: MIN_SDK_FALLBACK)
+
+        targetSdk = 35
+        versionCode FLUTTER_VERSION_CODE
+        versionName FLUTTER_VERSION_NAME
+
+        manifestPlaceholders = [
+                appAuthRedirectScheme: "com.dominiotech.s2bsafe2biz",
+                applicationName: "io.flutter.app.FlutterApplication"
+        ]
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions { jvmTarget = '11' }
+
+    // Si tu MainActivity está en Kotlin, mantenlo
+    sourceSets { main.java.srcDirs += 'src/main/kotlin' }
+
+    // Solo creamos signingConfig si hay keystore válido
+    if (hasKeystore) {
+        signingConfigs {
+            release {
+                if (System.getenv("CI") != null) {
+                    storeFile     file(System.getenv("CM_KEYSTORE_PATH"))
+                    storePassword System.getenv("CM_KEYSTORE_PASSWORD")
+                    keyAlias      System.getenv("CM_KEY_ALIAS")
+                    keyPassword   System.getenv("CM_KEY_PASSWORD")
+                } else {
+                    storeFile     file(keystoreProps['storeFile'])
+                    storePassword (keystoreProps['storePassword'] ?: '')
+                    keyAlias      (keystoreProps['keyAlias'] ?: '')
+                    keyPassword   (keystoreProps['keyPassword'] ?: '')
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (hasKeystore) {
+                signingConfig signingConfigs.release
+            }
+            // si no hay keystore, se crea unsigned sin tocar nada (evita Value is null)
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+        disable += ['InvalidPackage', 'Instantiatable']
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "androidx.annotation:annotation:1.7.1"
+}
+
+// Asegurar orden: primero genera libs.jar de Flutter y luego compila Kotlin

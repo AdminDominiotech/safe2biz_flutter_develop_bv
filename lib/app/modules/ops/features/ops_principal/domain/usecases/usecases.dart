@@ -1,0 +1,13 @@
+export 'delete_registro_general_uc.dart';
+export 'delete_registro_resultado_uc.dart';
+export 'edit_lista_verificacion_storage_uc.dart';
+export 'edit_registar_resultado_storage_uc.dart';
+export 'edit_status_registro_general_storage_uc.dart';
+export 'edit_status_registro_resultado_storage_uc.dart';
+export 'get_lista_verificacion_storage_uc.dart';
+export 'get_registro_resultado_by_id_general_storage_uc.dart';
+export 'get_registro_resultado_storage_uc.dart';
+export 'save_lista_verificacion_storage_uc.dart';
+export 'save_registar_resultado_storage_uc.dart';
+export 'save_registro_resultado_uc.dart';
+export 'save_registros_generales_uc.dart';
