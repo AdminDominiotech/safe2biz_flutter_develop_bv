@@ -32,6 +32,13 @@ abstract class ActoCondicion extends Equatable {
     required this.fbEmpleadoId,
     required this.fbEmpleadoNombre,
     required this.fbUeaPeId,
+
+    required this.bsafId,
+    required this.tarjetaRoja,
+    required this.interiorMina,
+    required this.interiorMinaNivel,
+    required this.interiorMinaLabor,
+    required this.interiorMinaNumeroLabor,
     required this.estado,
   });
 
@@ -65,6 +72,12 @@ abstract class ActoCondicion extends Equatable {
   String fbEmpleadoId;
   String fbEmpleadoNombre;
   String fbUeaPeId;
+  String bsafId;
+  String tarjetaRoja;
+  String interiorMina;
+  String interiorMinaNivel;
+  String interiorMinaLabor;
+  String interiorMinaNumeroLabor;
 
   /// 0: create,1: online
   String estado;
@@ -99,6 +112,12 @@ abstract class ActoCondicion extends Equatable {
         fbEmpleadoId,
         fbEmpleadoNombre,
         fbUeaPeId,
+        bsafId,
+        tarjetaRoja,
+        interiorMina,
+        interiorMinaNivel,
+        interiorMinaLabor,
+        interiorMinaNumeroLabor,
         estado,
-      ];
+  ];
 }

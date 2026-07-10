@@ -1,14 +1,14 @@
-import 'package:dio/dio.dart';
-import 'package:safe2biz/app/global/core/env/env.dart';
 import 'dart:io';
-
-import 'package:safe2biz/app/global/core/interceptors/dio_error_interceptor.dart';
+import 'package:dio/dio.dart';
+import 'package:dio/adapter.dart';
+import 'package:safe2biz/app/global/core/env/env.dart';
 
 class DioMicroServices {
   static final DioMicroServices _singleton = DioMicroServices._internal();
 
   late Dio msDio;
   late DioHeaders? _headers;
+  bool _initialized = false;
 
   DioHeaders get headers =>
       _headers ?? DioHeaders(company: '', userLogin: '', userPassword: '');
@@ -18,13 +18,15 @@ class DioMicroServices {
       throw Exception('[DioMicroServices] Env.host no ha sido inicializado');
     }
 
-    _singleton._buildDio();
+    if (!_singleton._initialized) {
+      _singleton._buildDio();
+      _singleton._initialized = true;
+    }
 
     return _singleton;
   }
 
   DioMicroServices._internal();
-
 
   void rebuildClient() {
     if (Env.host == null) {
@@ -32,61 +34,52 @@ class DioMicroServices {
     }
 
     _buildDio();
+    _initialized = true;
     print('[Dio] Cliente reconstruido con nuevo host: ${Env.host}');
   }
 
   void _buildDio() {
-
-    final host = Env.host!.startsWith('http://')
+    final host = Env.host!.startsWith('http://') ||
+        Env.host!.startsWith('https://')
         ? Env.host!
-        : Env.host!.replaceFirst(RegExp(r'^https?://'), 'http://');
+        : 'https://${Env.host!}';
 
-    msDio = Dio(BaseOptions(
-      connectTimeout: 9000000,
-      receiveTimeout: 70000,
-      baseUrl: host,
-      followRedirects: false,
-      headers: {
-        Headers.contentTypeHeader: Headers.jsonContentType,
-        Headers.acceptHeader: Headers.jsonContentType,
-        HttpHeaders.acceptEncodingHeader: 'gzip',
-        'App-name': 'Safe2App',
-        'App-version': 'v0.1',
-      },
-    ))
-      ..interceptors.add(LogInterceptor(requestBody: true, responseBody: true))
-      ..interceptors.add(InterceptorsWrapper(
-        onError: (DioError err, ErrorInterceptorHandler handler) async {
-          final opts = err.requestOptions;
-          final uri = opts.uri;
-          final triedHttps = opts.extra['triedHttps'] == true;
-
-          // 2) Si fue HTTP y aún no probamos HTTPS, rehacer por HTTPS
-          if (uri.scheme == 'http' && !triedHttps) {
-            final httpsHost = opts.baseUrl.replaceFirst(
-              'http://',
-              'https://',
-            );
-
-            final newOptions = opts.copyWith(
-              baseUrl: httpsHost,
-              extra: {...opts.extra, 'triedHttps': true},
-            );
-
-            try {
-              final response = await msDio.fetch(newOptions);
-              return handler.resolve(response);
-            } catch (_) {
-              return handler.next(err);
-            }
-          }
-          return handler.next(err);
+    msDio = Dio(
+      BaseOptions(
+        connectTimeout: 9000000,
+        receiveTimeout: 70000,
+        baseUrl: host,
+        followRedirects: false,
+        headers: {
+          Headers.contentTypeHeader: Headers.jsonContentType,
+          Headers.acceptHeader: Headers.jsonContentType,
+          HttpHeaders.acceptEncodingHeader: 'gzip',
+          'App-name': 'Safe2App',
+          'App-version': 'v0.1',
         },
-      ));
+      ),
+    );
+
+    final adapter = msDio.httpClientAdapter as DefaultHttpClientAdapter;
+    adapter.onHttpClientCreate = (HttpClient client) {
+      print('[Dio] onHttpClientCreate ejecutado');
+
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) {
+        print('[Dio] badCertificateCallback host=$host port=$port');
+        return host == 'desafe2biz.buenaventura.pe';
+      };
+
+      return client;
+    };
+
+    msDio.interceptors.clear();
+
+    msDio.interceptors.add(
+      LogInterceptor(requestBody: true, responseBody: true),
+    );
   }
 }
-
-
 
 class DioHeaders {
   DioHeaders({
@@ -94,6 +87,7 @@ class DioHeaders {
     required this.userPassword,
     required this.company,
   });
+
   String userLogin;
   String userPassword;
   String company;

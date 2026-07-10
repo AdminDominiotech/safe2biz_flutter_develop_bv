@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile_safe2bizapp_connectivity/mobile_safe2bizapp_connectivity.dart';
 import 'package:safe2biz/app/global/controllers/auth_controller.dart';
 import 'package:safe2biz/app/global/core/routing/routing.dart';
 import 'package:safe2biz/app/modules/auth/features/login/presenter/page/login_page.dart';
@@ -48,6 +49,11 @@ class SedeBody extends StatelessWidget {
               btnBack: false,
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.refresh, color: S2BColors.white),
+                  tooltip: 'Buscar nuevas sedes',
+                  onPressed: () => _refreshSedes(context),
+                ),
+                IconButton(
                   icon: const Icon(Icons.logout, color: S2BColors.white),
                   onPressed: () => _logout(context),
                 )
@@ -69,6 +75,28 @@ class SedeBody extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Refresca la lista de sedes. Solo funciona con conexion a internet: si no
+  /// hay, muestra un mensaje y no consulta al servidor.
+  Future<void> _refreshSedes(BuildContext context) async {
+    var hasConnection = false;
+    try {
+      hasConnection = await GetIt.I<ConnectivityStatus>().checkConnection();
+    } catch (_) {
+      hasConnection = false;
+    }
+
+    if (!hasConnection) {
+      Toast.show(
+        description:
+            'Conectarse a una red de internet para ver si existen mas sedes disponibles',
+        toastType: ToastType.warning,
+      );
+      return;
+    }
+
+    context.read<SedeBloc>().add(RefreshEv());
   }
 
   void _logout(BuildContext context) {

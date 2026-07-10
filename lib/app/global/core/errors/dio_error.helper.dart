@@ -34,7 +34,6 @@ String? format422Errors(DioError error) {
         formatedErrors.add('- ${value[0]}');
       });
     }
-
     if (error.response != null && error.response!.data.containsKey('message')) {
       formatedErrors.add('- ${error.response!.data['message']}');
     }

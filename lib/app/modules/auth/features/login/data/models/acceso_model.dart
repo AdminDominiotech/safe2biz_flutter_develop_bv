@@ -1,4 +1,4 @@
-// ignore: must_be_immutable
+ // ignore: must_be_immutable
 import 'dart:convert';
 
 import 'package:safe2biz/app/modules/auth/features/login/domain/entities/entities.dart';

@@ -1,4 +1,4 @@
-import 'dart:async';
+// TODO Implement this library.import 'dart:async';
 import 'dart:convert';
 import 'package:mobile_safe2bizapp_core/mobile_safe2bizapp_core.dart';
 import 'package:safe2biz/app/global/controllers/auth_controller.dart';
@@ -123,8 +123,8 @@ Future<List<Map>> readDataProd(int id_emp) async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'userLogin': '${user.userLogin}@${user.arroba}',
-      'userPassword': '${user.password}',
+      'userLogin': 'admin@${user.arroba}',
+      'userPassword': 'Safeadmin2025*',
       'systemRoot': '${user.arroba}',
       'Accept-Encoding': 'gzip, deflate, br',
       'Connection': 'keep-alive',
@@ -143,10 +143,6 @@ Future<List<Map>> readDataProd(int id_emp) async {
         resp = await http.post(Uri.parse(url), headers: headers).timeout(httpTimeout);
         dev.log('✅ HTTP 200 en ${swHttp.elapsedMilliseconds} ms', name: 'API');
         break;
-      } on TimeoutException {
-        dev.log('⏳ Timeout intento $attempt', name: 'API');
-        if (attempt >= maxRetries) rethrow;
-        await Future.delayed(Duration(milliseconds: 300 * attempt));
       } catch (e, st) {
         dev.log('💥 Error HTTP intento $attempt: $e', stackTrace: st, name: 'API');
         if (attempt >= maxRetries) rethrow;
@@ -289,41 +285,52 @@ Future<List<Map>> readDataProd(int id_emp) async {
         "FROM empleadoMina where empleadoMina.nombreCompleto LIKE '%$query%' AND fb_uea_pe_id = '${sedeEmp}' "); //SEDE
     return readSqlEmp;
   }
-
   Future<void> getAllEmp() async {
     final user = await authController.getUserFromStorage();
-    var url = '${user!.urlApp}/ws/null/pr_ws_fb_empleados_total?sc_user_id=1';
+
+    if (user == null) {
+      throw Exception('No hay sesión: user es null (storage vacío o sesión expirada).');
+    }
+
+    final urlApp = user.urlApp;
+    if (urlApp == null || urlApp.trim().isEmpty) {
+      throw Exception('Configuración inválida: user.urlApp es null/vacío.');
+    }
+
+    // Si también usas "arroba" para armar rutas/tenants, valida igual:
+    final arroba = user.arroba;
+    if (arroba == null || arroba.trim().isEmpty) {
+      throw Exception('Configuración inválida: user.arroba es null/vacío.');
+    }
+
+    // OJO: en tu ejemplo estabas pegando "null" en la ruta.
+    final url = '$urlApp/ws/$arroba/pr_ws_fb_empleados_total?sc_user_id=1';
 
     final headers = {
       "Content-Type": "application/json",
       "Accept": "application/json",
-      "userLogin": "${user.userLogin}@${user.arroba}",
-      "userPassword": "${user.password}",
-      "systemRoot": "${user.arroba}"
+      "userLogin": "admin@${arroba}",
+      "userPassword": "Safeadmin2025*", // si puede ser null
+      "systemRoot": arroba
     };
 
-    // Imprime la URL y los headers de manera legible.
     print("URL enviada: $url");
     print("Headers enviados: ${jsonEncode(headers)}");
 
-    var response = await http.post(
-      Uri.parse(url),
-      headers: headers,
-    );
+    final response = await http.post(Uri.parse(url), headers: headers);
 
     if (response.statusCode == 200) {
-      List data = json.decode(response.body)['data'];
-      List<EmpleadoModel> employees = data.map((e) => EmpleadoModel.fromJson(e)).toList();
+      final body = json.decode(response.body);
+      final List data = (body['data'] ?? []) as List;
 
-      print('Eliminando antiguos empleados...');
+      final employees = data.map((e) => EmpleadoModel.fromJson(e)).toList();
+
       await sqlDb.deleteAllEmployees();
-      print('Insertando empleados...');
       await sqlDb.createEmployees(employees);
     } else {
-      throw Exception('Failed to load employees');
+      throw Exception('Failed to load employees. HTTP ${response.statusCode}: ${response.body}');
     }
   }
-
 
 
   Future<void> getExamenMedicoEmp() async {
@@ -334,8 +341,8 @@ Future<List<Map>> readDataProd(int id_emp) async {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "userLogin": "${user.userLogin}@${user.arroba}",
-        "userPassword": "${user.password}",
+        "userLogin": "admin@${user.arroba}",
+        "userPassword": "Safeadmin2025*",
         "systemRoot": "${user.enterprise}"
       },
     );
@@ -361,8 +368,8 @@ Future<List<Map>> readDataProd(int id_emp) async {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "userLogin": "${user.userLogin}@${user.arroba}",
-        "userPassword": "${user.password}",
+        "userLogin": "admin@${user.arroba}",
+        "userPassword": "Safeadmin2025*",
         "systemRoot": "${user.enterprise}"
       },
     );
@@ -388,8 +395,8 @@ Future<List<Map>> readDataProd(int id_emp) async {
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "userLogin": "${user.userLogin}@${user.arroba}",
-        "userPassword": "${user.password}",
+        "userLogin": "admin@${user.arroba}",
+        "userPassword": "Safeadmin2025*",
         "systemRoot": "${user.enterprise}"
       },
     );

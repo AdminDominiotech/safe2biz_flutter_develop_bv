@@ -281,6 +281,8 @@ class _SincronizarBodyState extends State<SincronizarBody> {
             '${model[i].fotoEventoNombre};${model[i].fotoEventoRuta}';
             map['latitud'] = '${model[i].latitud}';
             map['longitud'] = '${model[i].longitud}';
+            map['bsafId'] = '${model[i].bsafId}';
+            map['tarjetaRoja'] = '${model[i].tarjetaRoja}';
 
 
             //datoEntregaProd.first["fecha_entrega"].substring(0,10)
@@ -622,7 +624,12 @@ void sendEppDetalle() async{
 
   void asyncMethod() async{
     await getIncidentesAccidentesFromStorage();
-    await getAYCFromStorage();
+    // La sincronizacion SOLO debe descargar informacion (tablas secundarias),
+    // NO subir registros del usuario. Antes esto subia los Actos y Condiciones
+    // (estado='0') a la nube y los marcaba estado='1', lo que provocaba que se
+    // borraran/purgaran. La subida de AyC ahora se hace UNICAMENTE desde la
+    // lista de Actos y Condiciones (boton de subir), no al sincronizar.
+    // await getAYCFromStorage();
     //await getPlanAccionFromStorage();
     //sendEpp();
     //sendEppDetalle();

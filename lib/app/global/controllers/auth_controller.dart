@@ -140,8 +140,15 @@ class AuthController {
     //--------------------------------------------
     //----------------- AYC ----------------------
     //--------------------------------------------
+    // Los registros PENDIENTES de envio (estado == '0') NO se borran al cerrar
+    // sesion: son trabajo del usuario que aun no llego al servidor y no se puede
+    // recuperar de ningun lado. Solo se purgan los ya ENVIADOS (estado == '1').
+    await db.delete(
+      LocalSqlite.TABLE_AYC_REGISTRO,
+      where: 'estado = ?',
+      whereArgs: ['1'],
+    );
     await db
-      ..delete(LocalSqlite.TABLE_AYC_REGISTRO)
       ..delete(LocalSqlite.TABLE_G_TIPO_CAUSA)
       ..delete(LocalSqlite.TABLE_G_NIVEL_RIESGO)
       ..delete(LocalSqlite.TABLE_ORIGEN_AYC)

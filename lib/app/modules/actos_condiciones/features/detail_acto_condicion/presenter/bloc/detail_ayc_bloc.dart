@@ -71,7 +71,45 @@ class DetailAycBloc extends Bloc<DetailAycEvent, DetailAycState> {
     InitEv ev,
     DetailAycEmitter emit,
   ) async {
-    _aycModel = ActoCondicionModel.fromJson({});
+    final a = ev.actoCondicion;
+    _aycModel = ActoCondicionModel(
+      id: a.id,
+      origen: a.origen,
+      gTipoCausaId: a.gTipoCausaId,
+      gTipoCausaNombre: a.gTipoCausaNombre,
+      fbGerencia: a.fbGerencia,
+      fbGerenciaNombre: a.fbGerenciaNombre,
+      fbAreaId: a.fbAreaId,
+      fbAreaNombre: a.fbAreaNombre,
+      descripcion: a.descripcion,
+      lugar: a.lugar,
+      fecha: a.fecha,
+      hora: a.hora,
+      corrigio: a.corrigio,
+      tipoEventoId: a.tipoEventoId,
+      tipoEventoNombre: a.tipoEventoNombre,
+      nivelRiesgoId: a.nivelRiesgoId,
+      nivelRiesgoNombre: a.nivelRiesgoNombre,
+      accionEjec: a.accionEjec,
+      fbEmpresaEspecializadaId: a.fbEmpresaEspecializadaId,
+      fbEmpresaEspecializadaNombre: a.fbEmpresaEspecializadaNombre,
+      latitud: a.latitud,
+      longitud: a.longitud,
+      fotoPreEventoNombre: a.fotoPreEventoNombre,
+      fotoPreEventoRuta: a.fotoPreEventoRuta,
+      fotoEventoNombre: a.fotoEventoNombre,
+      fotoEventoRuta: a.fotoEventoRuta,
+      fbEmpleadoId: a.fbEmpleadoId,
+      fbEmpleadoNombre: a.fbEmpleadoNombre,
+      fbUeaPeId: a.fbUeaPeId,
+      bsafId: a.bsafId,
+      tarjetaRoja: a.tarjetaRoja,
+      interiorMina: a.interiorMina,
+      interiorMinaNivel: a.interiorMinaNivel,
+      interiorMinaLabor: a.interiorMinaLabor,
+      interiorMinaNumeroLabor: a.interiorMinaNumeroLabor,
+      estado: a.estado,
+    );
     emit(Loading());
     final failureOrAreas = await _getAreasLocalUc();
     final resultAreas = failureOrAreas.fold((l) => l, (areas) => areas);
@@ -181,6 +219,12 @@ class DetailAycBloc extends Bloc<DetailAycEvent, DetailAycState> {
       fbEmpleadoId: ev.fbEmpleadoId,
       fbEmpleadoNombre: ev.fbEmpleadoNombre,
       fbUeaPeId: ev.fbUeaPeId,
+      bsafId: ev.bsafId,
+      tarjetaRoja: ev.tarjetaRoja,
+      interiorMina: ev.interiorMina,
+      interiorMinaNivel: ev.interiorMinaNivel,
+      interiorMinaLabor: ev.interiorMinaLabor,
+      interiorMinaNumeroLabor: ev.interiorMinaNumeroLabor,
       estado: ev.estado,
     );
   }
@@ -192,14 +236,23 @@ class DetailAycBloc extends Bloc<DetailAycEvent, DetailAycState> {
     emit(EditingActoCondicion());
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final imgResult1 = await _appController.transformImage(ev.file1);
-    final imgResult2 = await _appController.transformImage(ev.file2);
+    String img1Name = _aycModel.fotoPreEventoNombre;
+    String img1 = _aycModel.fotoPreEventoRuta;
+    String img2Name = _aycModel.fotoEventoNombre;
+    String img2 = _aycModel.fotoEventoRuta;
 
-    final img1Name = imgResult1.nameFile;
-    final img1 = imgResult1.base64;
+    if (ev.file1 != null) {
+      final imgResult1 = await _appController.transformImage(ev.file1!);
+      img1Name = imgResult1.nameFile;
+      img1 = imgResult1.base64;
+    }
 
-    final img2Name = imgResult2.nameFile;
-    final img2 = imgResult2.base64;
+    if (ev.file2 != null) {
+      final imgResult2 = await _appController.transformImage(ev.file2!);
+      img2Name = imgResult2.nameFile;
+      img2 = imgResult2.base64;
+    }
+
     final idUser = _authController.getID;
 
     final model = _aycModel.copyWith(

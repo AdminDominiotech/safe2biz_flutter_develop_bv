@@ -40,6 +40,12 @@ class ChangeDataEv extends RegisterAyCEvent {
     this.fbEmpleadoId,
     this.fbEmpleadoNombre,
     this.fbUeaPeId,
+    this.bsafID,
+    this.tarjetaRoja,
+    this.interiorMina,
+    this.interiorMinaNivel,
+    this.interiorMinaLabor,
+    this.interiorMinaNumeroLabor,
     this.estado,
   });
 
@@ -72,8 +78,13 @@ class ChangeDataEv extends RegisterAyCEvent {
   final String? fbEmpleadoId;
   final String? fbEmpleadoNombre;
   final String? fbUeaPeId;
+  final String? bsafID;
+  final String? tarjetaRoja;
+  final String? interiorMina;
+  final String? interiorMinaNivel;
+  final String? interiorMinaLabor;
+  final String? interiorMinaNumeroLabor;
   final String? estado;
-
   @override
   List<Object?> get props => [
         id,
@@ -105,6 +116,12 @@ class ChangeDataEv extends RegisterAyCEvent {
         fbEmpleadoId,
         fbEmpleadoNombre,
         fbUeaPeId,
+        bsafID,
+        tarjetaRoja,
+        interiorMina,
+        interiorMinaNivel,
+        interiorMinaLabor,
+        interiorMinaNumeroLabor,
         estado,
       ];
 }
@@ -115,9 +132,9 @@ class SaveActoCondicionEv extends RegisterAyCEvent {
     required this.file2,
   });
   // final ActoCondicion actoCondicion;
-  final File file1;
-  final File file2;
+  final File? file1;
+  final File? file2;
 
   @override
-  List<Object> get props => [file1, file2];
+  List<Object?> get props => [file1, file2];
 }

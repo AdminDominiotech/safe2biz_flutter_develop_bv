@@ -53,9 +53,9 @@ Future<void> main() async {
     await db.insert(
       LocalSqlite.TABLE_SETTINGS,
       {
-        'ip': 'https://app.safe2biz.com/safe2biz',
+        'ip': 'http://179.43.81.214:8083/safe2biz',
         'name_company': 'safe2biz',
-        'ARROBA_MOVIL': 'safe2biz',
+        'ARROBA_MOVIL': 'safe2biz_bv',
       },
     );
   }

@@ -381,23 +381,50 @@ class SincronizarLocal implements SincronizarLocalDatasource {
   @override
   Future<bool> saveAreasToLocal(List<Area> areas) async {
     try {
+      print('### [SAVE FB_AREA] areas a guardar: ${areas.length}');
       final db = await sqlite.database;
+
+      // Saneo de indices sobre la conexion VIVA (no depende de reabrir la BD,
+      // que es un singleton y no re-ejecuta onUpgrade/onOpen con hot reload).
+      // El indice unico viejo era solo sobre fb_area_id; un area puede
+      // repetirse para varias bases (fb_uea_base_id), por eso debe ser compuesto.
+      await db.execute('DROP INDEX IF EXISTS uq_fb_area_id_norm');
+      await db.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS uq_fb_area_id_uea_norm "
+        "ON ${LocalSqlite.TABLE_FB_AREA} "
+        "(TRIM(UPPER(fb_area_id)), TRIM(UPPER(COALESCE(fb_uea_base_id,''))));",
+      );
+      final idx = await db.rawQuery(
+        "SELECT name FROM sqlite_master "
+        "WHERE type='index' AND tbl_name='${LocalSqlite.TABLE_FB_AREA}';",
+      );
+      print('### [SAVE FB_AREA] indices tras saneo: $idx');
+
       await db.delete(LocalSqlite.TABLE_FB_AREA);
       final batch = db.batch();
 
       for (final i in areas) {
-        batch.insert(LocalSqlite.TABLE_FB_AREA, {
-          'fb_area_id': i.id,
-          'fb_gerencia_id': i.fbGerenciaId,
-          'codigo': i.codigo,
-          'nombre': i.nombre,
-        });
+        batch.insert(
+          LocalSqlite.TABLE_FB_AREA,
+          {
+            'fb_area_id': i.id,
+            'fb_gerencia_id': i.fbGerenciaId,
+            'codigo': i.codigo,
+            'nombre': i.nombre,
+            'fb_uea_base_id': i.fb_uea_base_id,
+            'flag_mina_interior': i.flagMinaInterior,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      await batch.commit(noResult: true);
+      final res = await batch.commit(noResult: false);
+      print('### [SAVE FB_AREA] filas insertadas: ${res.length}');
 
       return true;
     } catch (e, stackTrace) {
+      print('### [SAVE FB_AREA] ERROR: $e');
+      print('### [SAVE FB_AREA] STACK: $stackTrace');
       throw AppException(message: stackTrace.toString());
     }
   }
@@ -405,13 +432,24 @@ class SincronizarLocal implements SincronizarLocalDatasource {
   Future<bool> saveSacToLocal(List<PlanAccion> sacList, String companyId) async {
     try {
       final db = await sqlite.database;
-      await db.delete(LocalSqlite.TABLE_SAC_ACCION_CORRECTIVA);
+
+      // IMPORTANTE: NO se borra la tabla al sincronizar. Las tarjetas de Planes
+      // de Acción conservan su contenido y el progreso local del usuario
+      // (fecha_ejecucion, evidencia_nombre, evidencia_ruta, estado,
+      // obs_resp_corr). En sincronización solo se insertan los planes nuevos y
+      // se refrescan los campos de catálogo de los ya existentes.
+      final existentes = await db.query(
+        LocalSqlite.TABLE_SAC_ACCION_CORRECTIVA,
+        columns: ['sac_accion_correctiva_id'],
+      );
+      final idsExistentes = existentes
+          .map((row) => '${row['sac_accion_correctiva_id']}')
+          .toSet();
 
       final batch = db.batch();
 
       for (final i in sacList) {
-        batch.insert(LocalSqlite.TABLE_SAC_ACCION_CORRECTIVA, {
-          'sac_accion_correctiva_id': i.id,
+        final camposCatalogo = {
           'codigo_accion_correctiva': i.codigo,
           'accion_correctiva_detalle': i.detalle,
           'fecha_acordada_ejecucion': i.fechaEjecucion,
@@ -420,13 +458,30 @@ class SincronizarLocal implements SincronizarLocalDatasource {
           'uea_id': companyId,
           'fecha_origen': i.fechaOrigen,
           'nombre_responsable_verificador': i.responsableVerificador,
+        };
 
-          'fecha_ejecucion': "",
-          'evidencia_nombre': "",
-          'evidencia_ruta': "",
-          'estado': "",
-          'obs_resp_corr': "",
-        });
+        if (idsExistentes.contains('${i.id}')) {
+          // Plan ya existente: actualiza SOLO los campos de catálogo y conserva
+          // el progreso local (no se tocan fecha_ejecucion, evidencia, estado,
+          // obs_resp_corr).
+          batch.update(
+            LocalSqlite.TABLE_SAC_ACCION_CORRECTIVA,
+            camposCatalogo,
+            where: 'sac_accion_correctiva_id = ?',
+            whereArgs: [i.id],
+          );
+        } else {
+          // Plan nuevo: se inserta con los campos de progreso vacíos.
+          batch.insert(LocalSqlite.TABLE_SAC_ACCION_CORRECTIVA, {
+            'sac_accion_correctiva_id': i.id,
+            ...camposCatalogo,
+            'fecha_ejecucion': "",
+            'evidencia_nombre': "",
+            'evidencia_ruta': "",
+            'estado': "",
+            'obs_resp_corr': "",
+          });
+        }
       }
 
       await batch.commit(noResult: true);

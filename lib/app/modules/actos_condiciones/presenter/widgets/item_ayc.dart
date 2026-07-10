@@ -49,147 +49,132 @@ class ItemAyC extends StatelessWidget {
         splashColor: Colors.red,
         child: PhysicalModel(
           borderRadius: const BorderRadius.all(
-            Radius.circular(
-              S2BRadius.xs,
-            ),
+            Radius.circular(S2BRadius.xs),
           ),
           color: Colors.white,
-          clipBehavior: Clip.none,
+          clipBehavior: Clip.hardEdge,
           elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: S2BSpacing.sm,
-              vertical: S2BSpacing.sm,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    // Origen
-                    Expanded(
-                      flex: 3,
-                      child: Column(
+          child: IntrinsicHeight(
+            child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Franja de estado izquierda
+              Container(
+                width: 6,
+                color: actoCondicion.estado == '0'
+                    ? const Color(0xFFE53935)
+                    : const Color(0xFF43A047),
+              ),
+              // Contenido principal
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: S2BSpacing.sm,
+                    vertical: S2BSpacing.sm,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
                         children: [
-                          Container(
-                            child: TextLabel.h5(
-                              _labelOrigen(actoCondicion.origen),
-                              fontWeight: FontWeight.w700,
-                              textAlign: TextAlign.center,
-                              color: S2BColors.primaryColor,
+                          // Origen
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              children: [
+                                TextLabel.h5(
+                                  _labelOrigen(actoCondicion.origen),
+                                  fontWeight: FontWeight.w700,
+                                  textAlign: TextAlign.center,
+                                  color: S2BColors.primaryColor,
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 4,),
-                          Badge(
-                            actoCondicion.nivelRiesgoNombre,
-                            colorBackground: _colorNivelRiesgo(actoCondicion.nivelRiesgoNombre),
+                          const SizedBox(width: 5),
+
+                          // Descripción y Empresa
+                          Expanded(
+                            flex: 6,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: S2BSpacing.xs,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextLabel.labelText(
+                                    actoCondicion.fbAreaNombre,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  const SizedBox(height: S2BSpacing.xs),
+                                  TextLabel.small(
+                                    actoCondicion.descripcion,
+                                    color: S2BColors.silver,
+                                  ),
+                                  const SizedBox(height: S2BSpacing.xs),
+                                  Text(
+                                    actoCondicion.fbEmpresaEspecializadaNombre,
+                                    style: const TextStyle(
+                                      color: S2BColors.blue,
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Fecha y Hora
+                          Expanded(
+                            flex: 3,
+                            child: TextLabel.small(
+                              '${actoCondicion.fecha}\n${actoCondicion.hora}',
+                              color: S2BColors.primaryColor,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(width: 5,),
+                      const SizedBox(height: 6),
+                      const Divider(height: 4, color: Colors.grey),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Spacer(flex: 9),
 
-                    // Descripción y Empresa
-                    Expanded(
-                      flex: 6,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: S2BSpacing.xs,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextLabel.labelText(
-                              actoCondicion.fbAreaNombre,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            const SizedBox(
-                              height: S2BSpacing.xs,
-                            ),
-                            TextLabel.small(
-                              actoCondicion.descripcion,
-                              color: S2BColors.silver,
-                            ),
-                            const SizedBox(
-                              height: S2BSpacing.xs,
-                            ),
-                            Text(
-                              actoCondicion.fbEmpresaEspecializadaNombre,
-                              style: TextStyle(
-                                color: S2BColors.blue,
-                                fontSize: 12, // Asegúrate de usar el tamaño de fuente deseado
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                          // Botón de estado
+                          Expanded(
+                            flex: 3,
+                            child: actoCondicion.estado == '0'
+                                ? InkWell(
+                                    onTap: () =>
+                                        _upload(context, actoCondicion),
+                                    child: const Icon(
+                                      FontAwesomeIcons.upload,
 
-                    // Fecha y Hora
-                    Expanded(
-                      flex: 3,
-                      child: TextLabel.small(
-                        '${actoCondicion.fecha}\n${actoCondicion.hora}',
-                        color: S2BColors.primaryColor,
-                        textAlign: TextAlign.center,
+                                      size: 15,
+                                    ),
+                                  )
+                                : InkWell(
+                                    onTap: () => _delete(context),
+                                    child: const Icon(
+                                      FontAwesomeIcons.trash,
+                                      color: Colors.red,
+                                      size: 15,
+                                    ),
+                                  ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                SizedBox(height: 6,),
-                const Divider(height: 4, color: Colors.grey,),
-                SizedBox(height: 6,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-
-                    /*
-                    Expanded(
-                      flex: 3,
-                      child: Badge(
-                        _labelEstado(actoCondicion.estado),
-                        colorBackground: _colorEstado(actoCondicion.estado),
-                      ),
-                    ),
-
-                    */
-                    Spacer(
-                      flex: 9,
-                    ),
-
-                    // Estado
-
-                    Expanded(
-                      flex: 3,
-                      child: actoCondicion.estado == '0'
-                          ? InkWell(
-                        onTap: () => _upload(context, actoCondicion),
-                        child: const Icon(
-                          FontAwesomeIcons.upload,
-                          color: S2BColors.primaryColor,
-                          size: 15,
-                        ),
-
-                      )
-                          : InkWell(
-                        onTap: () => _delete(context),
-                        child: const Icon(
-                          FontAwesomeIcons.trash,
-                          color: S2BColors.dangerColor,
-                          size: 15,
-                        ),
-                      ),
-                    ),
-
-
-
-                    // Acciones
-
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
           ),
         ),
       ),
@@ -197,8 +182,9 @@ class ItemAyC extends StatelessWidget {
   }
 
 
+
   String _labelOrigen(String origen) {
-    final newOrigen = origen == 'A' ? 'ACTO' : 'COND';
+    final newOrigen = origen == 'A' ? 'ACTO' : 'ACTO';
 
     return newOrigen;
   }

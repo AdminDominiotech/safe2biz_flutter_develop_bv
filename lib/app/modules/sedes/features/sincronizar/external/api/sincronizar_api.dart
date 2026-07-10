@@ -23,8 +23,12 @@ class SincronizarApi implements SincronizarApiDatasource {
     );
 
 
+    print('### [API FB_AREA] statusCode: ${result.statusCode}');
+    print('### [API FB_AREA] data crudo: ${result.data}');
+
     if (result.statusCode == 200) {
       final data = result.data['data'];
+      print('### [API FB_AREA] filas en data: ${(data as List).length}');
       final list =
           List.from(data).map((item) => AreaModel.fromJson(item)).toList();
 
@@ -36,6 +40,7 @@ class SincronizarApi implements SincronizarApiDatasource {
     }
   }
 
+  
   @override
   Future<List<DesviacionModel>> getDesviacionesFromApi() async {
     final result = await dioMicroServices.msDio.post(

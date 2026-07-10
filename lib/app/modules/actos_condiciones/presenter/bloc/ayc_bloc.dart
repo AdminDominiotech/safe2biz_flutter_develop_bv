@@ -36,22 +36,35 @@ class AyCBloc extends Bloc<AyCEvent, AyCState> {
     emit(Loading(state.model));
 
     final result = await _getActosCondicionesStorageUc(ev.idSede);
-    result.fold(
-      (failure) => emit(
+    await result.fold(
+      (failure) async => emit(
         FailureGetActosCondiciones(
           error: failure.message,
           lastState: state,
           model: state.model,
         ),
       ),
-      (actosCondiciones) => emit(
-        Loaded(
-          state.model.copyWith(
-            idSede: ev.idSede,
-            actosCondiciones: actosCondiciones,
+      (actosCondiciones) async {
+        // Purga los registros ya ENVIADOS (estado == '1'): fueron subidos al
+        // servidor y no deben permanecer localmente. Los PENDIENTES
+        // (estado == '0') se conservan siempre.
+        final enviados =
+            actosCondiciones.where((ayc) => ayc.estado == '1').toList();
+        for (final ayc in enviados) {
+          await _deleteActoCondicionStorageUc(ayc.id);
+        }
+
+        final pendientes =
+            actosCondiciones.where((ayc) => ayc.estado != '1').toList();
+        emit(
+          Loaded(
+            state.model.copyWith(
+              idSede: ev.idSede,
+              actosCondiciones: pendientes,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -64,10 +77,15 @@ class AyCBloc extends Bloc<AyCEvent, AyCState> {
     for (final ayc in ev.actosCondiciones) {
       final failureOrBool = await _saveActoCondicionUc(ayc);
 
-      failureOrBool.fold((l) => l, (success) {
+      if (failureOrBool.isRight()) {
         uploadSuccess++;
-        _editStatusActoCondicionStorageUc(ayc.id, '1');
-      });
+        // Enviado con exito al servidor: se marca como enviado y se elimina del
+        // almacenamiento local. Si el borrado fallara, queda en estado='1' y se
+        // purga al recargar la lista (ver _onInitEv). Los registros que NO se
+        // enviaron permanecen en estado='0'.
+        await _editStatusActoCondicionStorageUc(ayc.id, '1');
+        await _deleteActoCondicionStorageUc(ayc.id);
+      }
     }
     log('Subido: ${ev.actosCondiciones.length} de $uploadSuccess');
     final message =

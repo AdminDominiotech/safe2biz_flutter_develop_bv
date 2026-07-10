@@ -149,7 +149,7 @@ class _AYC_BotState extends State<AYC_Bot> {
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                        width: 12,
+                                                        width: 14,
                                                         height: double.infinity,
                                                         child: Container(
                                                           decoration: BoxDecoration(

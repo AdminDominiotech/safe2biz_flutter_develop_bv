@@ -196,8 +196,17 @@ class SincronizarBloc extends Bloc<SincronizarEvent, SincronizarState> {
 
     if (resultAreas is! Failure) {
       final areas = resultAreas as List<Area>;
-      await _saveAreasLocalUc(areas);
+      print('### [SYNC AyC] Areas recibidas del API: ${areas.length}');
+      if (areas.isNotEmpty) {
+        print('### [SYNC AyC] Primera area: id=${areas.first.id} '
+            'nombre=${areas.first.nombre} '
+            'fb_uea_base_id=${areas.first.fb_uea_base_id}');
+      }
+      final saved = await _saveAreasLocalUc(areas);
+      print('### [SYNC AyC] saveAreasLocal resultado: $saved');
       _totalProcess = _totalProcess + 1;
+    } else {
+      print('### [SYNC AyC] FALLO al obtener areas del API: $resultAreas');
     }
 
     final resultGerencias =

@@ -24,11 +24,11 @@ class GerenciaModel extends Gerencia {
       );
 
   Map<String, dynamic> toJson() => {
-        'fb_gerencia_id': id,
-        'fbUeaPeId': fbUeaPeId,
-        'codigo': codigo,
-        'nombre': nombre,
-      };
+    'fb_gerencia_id': id,
+    'fb_uea_pe_id': fbUeaPeId, // ✅ igual que el API/DB
+    'codigo': codigo,
+    'nombre': nombre,
+  };
 
   Gerencia copyWith({
     String? id,

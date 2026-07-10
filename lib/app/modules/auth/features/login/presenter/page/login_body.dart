@@ -82,11 +82,9 @@ class _LoginBodyState extends State<LoginBody> {
               Nav.replace(
                 context,
                 const SedePage(),
-                
               );
               return;
             }
-
             if (state is FailureLogin) {
               Toast.show(
                 description:'Usuario y/o Contraseña Incorrecta',
@@ -113,6 +111,7 @@ class _LoginBodyState extends State<LoginBody> {
                       ),
                       Positioned(
                         left: S2BSpacing.zero,
+
                         right: S2BSpacing.zero,
                         top: spacingLogin,
                         bottom: S2BSpacing.xl,
@@ -200,7 +199,6 @@ class _LoginBodyState extends State<LoginBody> {
 
 
                                               setState(() {
-
                                                 _login(context);
                                               });
                                      //         SettingsController(sqlite: GetIt.instance.get<LocalSqlite>()).saveS2B();
@@ -208,7 +206,26 @@ class _LoginBodyState extends State<LoginBody> {
 
                                             },
                                             child: Text(UiValues.iniciarSesion),
-                                          )
+
+                                          ),
+
+                                      const SizedBox(
+                                      height: S2BSpacing.lg,
+                                    ),
+
+                                          const SizedBox(
+                                            height: S2BSpacing.lg,
+                                          ),
+
+                                          const SizedBox(
+                                            height: S2BSpacing.lg,
+                                          ),
+
+                                              Text('Ver. 1.4.0-20260429', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),),
+
+
+
+
                                           /*BtnDefault(
                                             UiValues.iniciarSesion,
                                             loading: state is Loading,

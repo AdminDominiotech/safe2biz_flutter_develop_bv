@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobile_safe2bizapp_core/mobile_safe2bizapp_core.dart';
@@ -8,7 +8,7 @@ import 'package:safe2biz/app/modules/actos_condiciones/data/datasource/api/actos
 import 'package:safe2biz/app/modules/actos_condiciones/domain/entities/acto_condicion.dart';
 import 'package:safe2biz/app/global/core/errors/exceptions.dart';
 import 'package:safe2biz/app/global/core/micro_services/dio_micro_services.dart';
-
+import 'package:dio/adapter.dart';
 import '../../../../global/controllers/auth_controller.dart';
 
 class ActosCondicionesApi implements ActosCondicionesApiDatasource {
@@ -24,38 +24,91 @@ class ActosCondicionesApi implements ActosCondicionesApiDatasource {
     return '${'*' * (s.length - 4)}${s.substring(s.length - 4)}';
   }
 
-// Crea un Dio base (ajusta timeouts según tu necesidad)
-  Dio _dio() => Dio(
-    BaseOptions(
-      baseUrl: 'https://app.safe2biz.com/safe2biz/ws',
-      followRedirects: true,
-      validateStatus: (s) => s != null && s < 500,
-      connectTimeout: 30000, // ms (Dio 4)
-      receiveTimeout: 60000,
-      sendTimeout: 60000,
-    ),
-  )..interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (o, h) {
-        debugPrint('→ ${o.method} ${o.uri}');
-        h.next(o);
-      },
-      onResponse: (r, h) {
-        debugPrint('← ${r.statusCode} ${r.requestOptions.uri}');
-        h.next(r);
-      },
-      onError: (e, h) {
-        debugPrint('⨯ ${e.type}  uri=${e.requestOptions.uri}');
-        if (e.response != null) {
-          debugPrint('⨯ body=${e.response?.data}');
-        }
-        h.next(e);
-      },
-    ),
-  );
+  // ✅ Opción A: _dio() ASYNC y obtiene user con await
+  Future<Dio> _dio() async {
+    final local = LocalSqlite();
+    final auth = AuthController(sqlite: local);
+    final user = await auth.getUserFromStorage();
 
+    if (user == null || user.urlApp == null || user.urlApp!.trim().isEmpty) {
+      throw Exception('No hay usuario en storage o urlApp está vacío');
+    }
+
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: '${user.urlApp}/ws',
+        followRedirects: true,
+        validateStatus: (s) => s != null && s < 500,
+        connectTimeout: 30000,
+        receiveTimeout: 60000,
+        sendTimeout: 60000,
+      ),
+    );
+
+    final adapter = dio.httpClientAdapter as DefaultHttpClientAdapter;
+    adapter.onHttpClientCreate = (HttpClient client) {
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) {
+        debugPrint('badCertificateCallback host=$host port=$port');
+        return host == 'desafe2biz.buenaventura.pe';
+      };
+      return client;
+    };
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (o, h) {
+          debugPrint('→ ${o.method} ${o.uri}');
+          debugPrint('→ headers: ${jsonEncode(o.headers)}');
+
+          if (o.data != null) {
+            try {
+              final dataStr = o.data.toString();
+              debugPrint('→ data: ${_truncate(dataStr, max: 800)}');
+            } catch (_) {
+              debugPrint('→ data: [no se pudo imprimir]');
+            }
+          }
+
+          h.next(o);
+        },
+        onResponse: (r, h) {
+          debugPrint('← ${r.statusCode} ${r.requestOptions.uri}');
+          debugPrint('← headers: ${r.headers.map}');
+          debugPrint('← data: ${_truncate(r.data.toString(), max: 1200)}');
+          h.next(r);
+        },
+        onError: (e, h) {
+          debugPrint('⨯ type: ${e.type}');
+          debugPrint('⨯ message: ${e.message}');
+          debugPrint('⨯ error: ${e.error}');
+          debugPrint('⨯ uri: ${e.requestOptions.uri}');
+          debugPrint('⨯ method: ${e.requestOptions.method}');
+          debugPrint('⨯ headers: ${jsonEncode(e.requestOptions.headers)}');
+
+          try {
+            debugPrint('⨯ request data: ${_truncate(e.requestOptions.data.toString(), max: 1200)}');
+          } catch (_) {
+            debugPrint('⨯ request data: [no se pudo imprimir]');
+          }
+
+          if (e.response != null) {
+            debugPrint('⨯ statusCode: ${e.response?.statusCode}');
+            debugPrint('⨯ response headers: ${e.response?.headers.map}');
+            debugPrint('⨯ response body: ${_truncate(e.response?.data.toString() ?? '', max: 2000)}');
+          } else {
+            debugPrint('⨯ response: null');
+          }
+
+          debugPrint('⨯ stackTrace: ${e.stackTrace}');
+          h.next(e);
+        },
+      ),
+    );
+
+    return dio;
+  }
   String _toYMD(String f) {
-    // si viene dd/MM/yyyy lo conviertes; si ya viene yyyy-MM-dd, lo dejas
     final p = f.split('/');
     if (p.length == 3 && p[0].length <= 2) {
       return '${p[2]}-${p[1].padLeft(2, '0')}-${p[0].padLeft(2, '0')}';
@@ -69,8 +122,8 @@ class ActosCondicionesApi implements ActosCondicionesApiDatasource {
     final auth = AuthController(sqlite: local);
     final user = await auth.getUserFromStorage();
 
-    final arroba = (user!.arroba ?? '').trim();           // p.ej. 'safe2biz'
-    final systemRoot = (user.enterprise ?? arroba).trim(); // a veces coincide con arroba
+    final arroba = (user!.arroba ?? '').trim();
+    final systemRoot = (user.enterprise ?? arroba).trim();
     final userLoginHeader = '${user.userLogin}@$arroba';
 
     final headers = <String, String>{
@@ -103,28 +156,31 @@ class ActosCondicionesApi implements ActosCondicionesApiDatasource {
       'descripcion': a.descripcion ?? '',
       'accion_ejec': a.accionEjec ?? '',
       'corrigio': a.corrigio?.toString(),
-      // nombre;base64 tal cual lo necesitas:
-      'foto_pre_evento': '${a.fotoPreEventoNombre};${a.fotoPreEventoRuta}',
-      'foto_evento': '${a.fotoEventoNombre};${a.fotoEventoRuta}',
+      'foto_pre_evento': (a.fotoPreEventoNombre != null &&
+          a.fotoPreEventoNombre!.isNotEmpty &&
+          a.fotoPreEventoRuta != null &&
+          a.fotoPreEventoRuta!.isNotEmpty)
+          ? '${a.fotoPreEventoNombre};${a.fotoPreEventoRuta}'
+          : '',
+      'foto_evento': (a.fotoEventoNombre != null &&
+          a.fotoEventoNombre!.isNotEmpty &&
+          a.fotoEventoRuta != null &&
+          a.fotoEventoRuta!.isNotEmpty)
+          ? '${a.fotoEventoNombre};${a.fotoEventoRuta}'
+          : '',
       'latitud': a.latitud?.toString(),
       'longitud': a.longitud?.toString(),
+      'bsafId': a.bsafId?.toString(),
+      'tarjetaRoja': a.tarjetaRoja?.toString()
     };
 
-    // Logs de verificación
+    
     debugPrint('*** Payload AYC (previo a envío) ***');
     debugPrint(const JsonEncoder.withIndent('  ').convert(payload));
-    for (final k in ['foto_pre_evento', 'foto_evento']) {
-      final parts = (payload[k] as String?)?.split(';') ?? const [];
-      final name = parts.isNotEmpty ? parts.first : '';
-      final b64 = parts.length > 1 ? parts[1] : '';
-      debugPrint('$k.nombre = $name');
-      debugPrint('$k.base64 (preview) = ${_truncate(b64)}');
-    }
 
-    final dio = _dio();
+    final dio = await _dio(); // ✅ ahora es await
     final path = '/null/pr_movil_AYC_Inserta_AyC';
 
-    // 3) Envío como x-www-form-urlencoded (suele ser lo que esperan estos WS)
     final resp = await dio.post(
       path,
       data: payload,
@@ -143,18 +199,4 @@ class ActosCondicionesApi implements ActosCondicionesApiDatasource {
     if (resp.statusCode == 200) return true;
     throw ServerException(statusCode: resp.statusCode);
   }
-
-/* Si el WS te exige multipart SÍ o SÍ, sustituye el bloque de envío por este:
-
-  final form = FormData.fromMap(payload);
-  final resp = await dio.post(
-    path,
-    data: form,
-    options: Options(
-      headers: headers,
-      // contentType: Headers.multipartFormDataContentType, // Dio lo pone solo con FormData
-    ),
-  );
-
-*/
 }

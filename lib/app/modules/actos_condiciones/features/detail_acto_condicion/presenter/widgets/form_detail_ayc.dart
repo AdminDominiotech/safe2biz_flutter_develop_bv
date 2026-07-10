@@ -10,9 +10,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobile_safe2bizapp_connectivity/mobile_safe2bizapp_connectivity.dart';
 import 'package:mobile_safe2bizapp_core/mobile_safe2bizapp_core.dart';
 import 'package:safe2biz/app/global/core/utils/utils.dart';
+import 'package:safe2biz/app/modules/actos_condiciones/data/models/bsaf.dart';
 import 'package:safe2biz/app/modules/actos_condiciones/domain/entities/acto_condicion.dart';
 import 'package:safe2biz/app/modules/actos_condiciones/features/detail_acto_condicion/presenter/bloc/detail_ayc_bloc.dart';
 import 'package:safe2biz/app/global/core/core.dart' hide RadioGroup;
+import 'package:safe2biz/app/modules/sedes/features/sincronizar/data/models/area_model.dart';
 import 'package:safe2biz/app/modules/sedes/features/sincronizar/domain/entities/entities.dart';
 import 'package:safe2biz/app/modules/sedes/features/sincronizar/presenter/page/sincronizar_page.dart';
 import 'package:safe2biz/app/ui/module_ui.dart';
@@ -37,6 +39,13 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
   final _sizedBoxSecondKey = GlobalKey();
   final _scrollCtrl = ScrollController();
   final ValueNotifier<int> origenSelected = ValueNotifier<int>(1); // 1=Acto, 2=Condición
+  final ValueNotifier<int> tarjetaRojaSelected = ValueNotifier<int>(1);
+  final ValueNotifier<int> interiorMinaSelected = ValueNotifier<int>(1);
+  final interiorMinaNivelTxt = TextEditingController();
+  final interiorMinaLaborTxt = TextEditingController();
+  final interiorMinaNumeroLaborTxt = TextEditingController();
+  // Visibilidad de los campos de Interior Mina segun flag_mina_interior del area.
+  bool _esInteriorMina = false;
   late String _idSede;
   DateTime dateSelected = DateTime.now();
   final empleadoTxt = TextEditingController();
@@ -60,6 +69,11 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
   final nivelRiesgoTxt = TextEditingController();
   String idNivelRiesgo = '';
   final accionInmediataTxt = TextEditingController();
+
+
+  final bsafTxt = TextEditingController();
+  String idBsaf = '';
+
  // final corrigioSelected = ValueNotifier<int>(1);
   String? img1;
   final file1 = ValueNotifier<File?>(null);
@@ -84,6 +98,8 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
   List<Option<TipoEvento>> listTipoEventosOp = [];
   List<Option<NivelRiesgo>> listNivelRiesgosOp = [];
   List<Option<Empleado>> listEmpleadosOp = [];
+  List<Option<Bsaf>> listBsafOp = [];
+
 
   @override
   void initState() {
@@ -101,18 +117,40 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
 
   Future<void> _initTextControllers() async {
     final ayc = widget.actoCondicion;
-    currentPosition =
-        LatLng(double.parse(ayc.latitud), double.parse(ayc.longitud));
+
+    debugPrint('=== [FormDetailAyC] actoCondicion cargado desde SQLite ===');
+    debugPrint('id:                    ${ayc.id}');
+    debugPrint('descripcion:           ${ayc.descripcion}');
+    debugPrint('lugar:                 ${ayc.lugar}');
+    debugPrint('area:                  ${ayc.fbAreaNombre} (id: ${ayc.fbAreaId})');
+    debugPrint('fecha:                 ${ayc.fecha} ${ayc.hora}');
+    debugPrint('tarjetaRoja:           ${ayc.tarjetaRoja}');
+    debugPrint('interiorMina:          ${ayc.interiorMina}');
+    debugPrint('interiorMinaNivel:     "${ayc.interiorMinaNivel}"');
+    debugPrint('interiorMinaLabor:     "${ayc.interiorMinaLabor}"');
+    debugPrint('interiorMinaNumeroLabor: "${ayc.interiorMinaNumeroLabor}"');
+    debugPrint('latitud:               ${ayc.latitud}');
+    debugPrint('longitud:              ${ayc.longitud}');
+    debugPrint('estado:                ${ayc.estado}');
+    debugPrint('=== [FormDetailAyC] fin ===');
+
+    _idSede = LocalPreferences.prefs?.getString('current_sede_id') ?? '0';
+
+    currentPosition = LatLng(
+      double.tryParse(ayc.latitud) ?? 0.0,
+      double.tryParse(ayc.longitud) ?? 0.0,
+    );
+
     empleadoTxt.text = ayc.fbEmpleadoNombre;
     idEmpleado = ayc.fbEmpleadoId;
-    origenSelected.value = ayc.origen == 'A' ? 0 : 1;
+    tarjetaRojaSelected.value = ayc.tarjetaRoja == '0' ? 0 : 1;
     desviacionTxt.text = ayc.gTipoCausaNombre;
     gerenciaTxt.text = ayc.fbGerenciaNombre;
     idGerencia = ayc.fbGerencia;
     areaTxt.text = ayc.fbAreaNombre;
     idArea = ayc.fbAreaId;
     empresaTxt.text = ayc.fbEmpresaEspecializadaNombre;
-    idEmpresa = ayc.fbEmpleadoId;
+    idEmpresa = ayc.fbEmpresaEspecializadaId;
     fechaTxt.text = ayc.fecha;
     horaTxt.text = ayc.hora;
     descripcionTxt.text = ayc.descripcion;
@@ -122,7 +160,16 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
     nivelRiesgoTxt.text = ayc.nivelRiesgoNombre;
     idNivelRiesgo = ayc.nivelRiesgoId;
     accionInmediataTxt.text = ayc.accionEjec;
+    interiorMinaSelected.value = ayc.interiorMina == '0' ? 0 : 1;
+    // El registro ya trae si es interior mina; mostramos los campos acorde.
+    _esInteriorMina = ayc.interiorMina == '1';
+    interiorMinaNivelTxt.text = ayc.interiorMinaNivel;
+    interiorMinaLaborTxt.text = ayc.interiorMinaLabor;
+    interiorMinaNumeroLaborTxt.text = ayc.interiorMinaNumeroLabor;
     corrigioSelected.value = ayc.corrigio == '0' ? 1 : 0;
+
+    if (mounted) setState(() {});
+
     if (ayc.fotoPreEventoRuta.isNotEmpty) {
       img1 = ayc.fotoPreEventoRuta;
       img1Name = ayc.fotoPreEventoNombre;
@@ -139,7 +186,6 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
         name: ayc.fotoEventoNombre,
       );
     }
-    _idSede = LocalPreferences.prefs?.getString('current_sede_id') ?? '0';
   }
 
   void _checkedConection(bool value) {
@@ -198,6 +244,8 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
               state.nivelRiesgos.map((e) => Option(e.nombre, e)).toList();
           listEmpleadosOp =
               state.empleados.map((e) => Option(e.nombreCompleto, e)).toList();
+
+
           if (state.desviaciones.isEmpty) {
             SyncDataScreen.show(
               context: context,
@@ -260,9 +308,11 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+
                         const SizedBox(
                           height: S2BSpacing.sm,
                         ),
+/*
                     ValueListenableBuilder<int>(
                       valueListenable: origenSelected,
                       builder: (_, value, __) {
@@ -290,71 +340,12 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                         );
                       },
                     ),
+                        */
+
                         const SizedBox(
                           height: S2BSpacing.sm,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InputTextField(
-                                controller: fechaTxt,
-                                readOnly: true,
-                                onTap: () async {
-                                  _selectDay(context);
-                                },
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Seleccione';
-                                  }
-                                  return null;
-                                },
-                                trailingIcon: const InputTrailingIcon(
-                                  FontAwesomeIcons.calendar,
-                                  color: S2BColors.primaryColor,
-                                ),
-                                placeholder: "Fecha",
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: InputTextField(
-                                controller: horaTxt,
-                                readOnly: true,
-                                onTap: () async {
-                                  final selectHour =
-                                      await showCupertinoModalPopup<String>(
-                                    context: context,
-                                    builder: (_) => SelectHour(
-                                      title: 'Horas',
-                                      initial: horaTxt.text.isEmpty
-                                          ? null
-                                          : horaTxt.text,
-                                      onTapOk: (value) {
-                                        Navigator.pop(context, value);
-                                      },
-                                    ),
-                                  );
-                                  if (selectHour != null) {
-                                    horaTxt.text = selectHour;
-                                  }
-                                },
-                                validator: (value) {
-                                  if (value.isEmpty) {
-                                    return 'Seleccione';
-                                  }
-                                  return null;
-                                },
-                                trailingIcon: const InputTrailingIcon(
-                                  FontAwesomeIcons.clock,
-                                  color: S2BColors.primaryColor,
-                                ),
-                                placeholder: "Hora",
-                              ),
-                            ),
-                          ],
-                        ),
+                        /*
                         const SizedBox(
                           height: S2BSpacing.lg,
                         ),
@@ -372,23 +363,8 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                           },
                           placeholder: UiValues.desviacion,
                         ),
-                        const SizedBox(
-                          height: S2BSpacing.lg,
-                        ),
-                        InputTextField(
-                          controller: nivelRiesgoTxt,
-                          readOnly: true,
-                          onTap: () {
-                            _selectNivelRiesgo(context);
-                          },
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Seleccione';
-                            }
-                            return null;
-                          },
-                          placeholder: "Nivel de riesgo",
-                        ),
+                        */
+
                         const SizedBox(
                           height: S2BSpacing.lg,
                         ),
@@ -405,6 +381,9 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                         const SizedBox(
                           height: S2BSpacing.lg,
                         ),
+
+
+                        /*
                         InputTextField(
                           controller: gerenciaTxt,
                           readOnly: true,
@@ -422,6 +401,7 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                         const SizedBox(
                           height: S2BSpacing.lg,
                         ),
+                        */
                         InputTextField(
                           controller: areaTxt,
                           readOnly: true,
@@ -446,73 +426,90 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
                               return 'Seleccione';
                             }
                             return null;
+
                           },
                           placeholder: "Lugar",
                         ),
                         const SizedBox(
                           height: S2BSpacing.lg,
                         ),
-                        InputTextField(
-                          controller: empresaTxt,
-                          readOnly: true,
-                          onTap: () {
-                            _selectEmpresas(context);
-                          },
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Seleccione';
-                            }
-                            return null;
-                          },
-                          placeholder: "Empresa",
-                        ),
-                        const SizedBox(
-                          height: S2BSpacing.lg,
-                        ),
-                        InputTextField(
-                          controller: accionInmediataTxt,
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Requerido';
-                            }
-                            return null;
-                          },
-                          placeholder: "Acción inmediata",
-                        ),
                         SizedBox(
                           key: _sizedBoxKey,
                           height: S2BSpacing.md,
                         ),
-                    ValueListenableBuilder<int>(
-                      valueListenable: corrigioSelected,
-                      builder: (_, value, __) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Se corrigió'),
-                            RadioListTile<int>(
-                              title: const Text('Sí'),
-                              value: 1,
-                              groupValue: value,
-                              onChanged: (v) {
-                                if (v != null) corrigioSelected.value = v;
-                              },
-                            ),
-                            RadioListTile<int>(
-                              title: const Text('No'),
-                              value: 0,
-                              groupValue: value,
-                              onChanged: (v) {
-                                if (v != null) corrigioSelected.value = v;
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                        const SizedBox(
-                          height: S2BSpacing.xs,
+
+                        ValueListenableBuilder<int>(
+                          valueListenable: tarjetaRojaSelected,
+                          builder: (_, value, __) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('¿Requiere Tarjeta Roja?:'),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: RadioListTile<int>(
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        title: const Text('Si'),
+                                        value: 1,
+                                        groupValue: value,
+                                        onChanged: (v) {
+                                          if (v != null) tarjetaRojaSelected.value = v;
+                                        },
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: RadioListTile<int>(
+                                        contentPadding: EdgeInsets.zero,
+                                        dense: true,
+                                        title: const Text('No'),
+                                        value: 0,
+                                        groupValue: value,
+                                        onChanged: (v) {
+                                          if (v != null) tarjetaRojaSelected.value = v;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
+                        // Solo visible cuando el area tiene flag_mina_interior = 1.
+                        if (_esInteriorMina) ...[
+                          const SizedBox(
+                            height: S2BSpacing.xs,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              InputTextField(
+                                controller: interiorMinaNivelTxt,
+                                placeholder: 'Interior Mina Nivel',
+                              ),
+                              const SizedBox(height: S2BSpacing.lg),
+                              InputTextField(
+                                controller: interiorMinaLaborTxt,
+                                placeholder: 'Interior Mina Labor',
+                              ),
+                              // Campo "Interior Mina Número de Labor" oculto a pedido.
+                              /*
+                              const SizedBox(height: S2BSpacing.lg),
+                              InputTextField(
+                                controller: interiorMinaNumeroLaborTxt,
+                                placeholder: 'Interior Mina Número de Labor',
+                              ),
+                              */
+                            ],
+                          ),
+                          const SizedBox(
+                            height: S2BSpacing.lg,
+                          ),
+                        ],
+
                         Align(
                           key: _sizedBoxSecondKey,
                           alignment: Alignment.centerLeft,
@@ -651,6 +648,10 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
     );
   }
 
+
+
+
+
   void _selectGerencias(BuildContext context) async {
     final idSede = LocalPreferences.prefs?.getString('current_sede_id') ?? '0';
     final newList =
@@ -672,15 +673,60 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
   }
 
   void _selectArea(BuildContext context) async {
-    final newList =
-        listAreasOp.where((e) => e.value.fbGerenciaId == idGerencia).toList();
+    debugPrint('=== [_selectArea DETAIL] ===');
+    debugPrint('_idSede: $_idSede');
+
+    if (listAreasOp.isEmpty) {
+      try {
+        final rows = await LocalSqlite().getAreas();
+        debugPrint('Filas crudas en FB_AREA: ${rows.length}');
+        if (rows.isNotEmpty) debugPrint('Primera fila Area: ${rows.first}');
+
+        final items = rows.map((r) {
+          final a = AreaModel.fromJson(r);
+          return Option<Area>(a.nombre, a);
+        }).toList();
+        items.sort((a, b) => a.label.compareTo(b.label));
+        listAreasOp = items;
+      } catch (e, st) {
+        debugPrint('ERROR cargando Areas: $e\n$st');
+        return;
+      }
+    }
+
+    debugPrint('listAreasOp total: ${listAreasOp.length}');
+
+    final ueaBaseId = await LocalSqlite().getUeaBaseId(_idSede);
+    debugPrint('fb_uea_base_id para sede $_idSede: $ueaBaseId');
+
+    final filteredAreas = ueaBaseId.isEmpty
+        ? listAreasOp
+        : listAreasOp.where((e) => e.value.fb_uea_base_id == ueaBaseId).toList();
+
+    debugPrint('Áreas filtradas por fb_uea_base_id: ${filteredAreas.length}');
+    debugPrint('=== [fin _selectArea DETAIL] ===');
+
     PopupSelect.show<Area>(
       title: 'Areas',
       context: context,
-      initialList: newList,
+      initialList: filteredAreas,
       onSelect: (String value, Area item) {
-        areaTxt.text = item.nombre;
-        idArea = item.id;
+        setState(() {
+          areaTxt.text = item.nombre;
+          idArea = item.id;
+          // Si el area tiene flag_mina_interior = 1 se muestran los campos de
+          // Interior Mina. En otra area, ocultamos y limpiamos esos campos.
+          if (item.flagMinaInterior == '1') {
+            _esInteriorMina = true;
+            interiorMinaSelected.value = 1;
+          } else {
+            _esInteriorMina = false;
+            interiorMinaSelected.value = 0;
+            interiorMinaNivelTxt.clear();
+            interiorMinaLaborTxt.clear();
+            interiorMinaNumeroLaborTxt.clear();
+          }
+        });
         Navigator.pop(context);
       },
       itemBuilder: (BuildContext context, Area item) {
@@ -704,6 +750,8 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
       },
     );
   }
+
+
 
   Future<void> _selectDay(BuildContext context) async {
     await showCupertinoModalPopup(
@@ -764,11 +812,29 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
     );
   }
 
+
+
+  void _selectBsaf(BuildContext context) async {
+    PopupSelect.show<Bsaf>(
+      title: 'BSAF',
+      context: context,
+      initialList: listBsafOp,
+      onSelect: (String value, Bsaf item) {
+        bsafTxt.text = item.nombre;
+        idBsaf = item.inc_bsaf_id;
+        Navigator.pop(context);
+      },
+      itemBuilder: (BuildContext context, Bsaf item) {
+        return ItemSelect(item.nombre);
+      },
+    );
+  }
+
   void _inputChange() {
     context.read<DetailAycBloc>().add(
           ChangeDataEv(
             id: widget.actoCondicion.id,
-            origen: origenSelected.value == 1 ? 'A' : 'C',
+            origen: null,
             gTipoCausaId: idDesviacion,
             gTipoCausaNombre: desviacionTxt.text,
             fbGerencia: idGerencia,
@@ -779,15 +845,16 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
             lugar: lugarTxt.text,
             fecha: fechaTxt.text,
             hora: horaTxt.text,
-            corrigio: corrigioSelected.value.toString(),
+            corrigio: null,
             // TODO: REVISAR ESTO CESAR ESTA QUEMADO
             tipoEventoId: "27",
             tipoEventoNombre: "Seguridad",
-            nivelRiesgoId: idNivelRiesgo,
-            nivelRiesgoNombre: nivelRiesgoTxt.text,
-            accionEjec: accionInmediataTxt.text,
-            fbEmpresaEspecializadaId: idEmpresa,
-            fbEmpresaEspecializadaNombre: empresaTxt.text,
+            nivelRiesgoId: null,
+            nivelRiesgoNombre: null,
+            accionEjec: null,
+            fbEmpresaEspecializadaId: null,
+            fbEmpresaEspecializadaNombre: null,
+
             latitud:
                 currentPosition != null ? '${currentPosition!.latitude}' : '0',
             longitud:
@@ -795,72 +862,27 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
             //fbEmpleadoId: idEmpleado,
             fbEmpleadoNombre: empleadoTxt.text,
             fbUeaPeId: _idSede,
+            bsafId: null,
+            tarjetaRoja: tarjetaRojaSelected.value.toString(),
+            interiorMina: interiorMinaSelected.value.toString(),
+            interiorMinaNivel: interiorMinaNivelTxt.text,
+            interiorMinaLabor: interiorMinaLaborTxt.text,
+            interiorMinaNumeroLabor: interiorMinaNumeroLaborTxt.text,
             estado: '0',
           ),
         );
   }
 
   void _edit(BuildContext context) async {
-    bool isValidate = true;
     _inputChange();
     if (!formKey.currentState!.validate()) {
-      isValidate = false;
-    }
-
-    if (file1.value == null || file2.value == null) {
-      isValidate = false;
-    }
-    if (!isValidate) {
       return;
     }
 
-    // final app = GetIt.I<AppController>();
-
-    // final imgResult1 = await app.transformImage(file1.value!);
-    // img1Name = imgResult1.nameFile;
-    // img1 = imgResult1.base64;
-
-    // final imgResult2 = await app.transformImage(file2.value!);
-    // img2Name = imgResult2.nameFile;
-    // img2 = imgResult2.base64;
-
-    // final actoCondicion = ActoCondicionModel(
-    //   id: widget.actoCondicion.id,
-    //   origen: origenSelected.value == 1 ? 'A' : 'C',
-    //   gTipoCausaId: idDesviacion,
-    //   gTipoCausaNombre: desviacionTxt.text,
-    //   fbGerencia: idGerencia,
-    //   fbGerenciaNombre: gerenciaTxt.text,
-    //   fbAreaId: idArea,
-    //   fbAreaNombre: areaTxt.text,
-    //   descripcion: descripcionTxt.text,
-    //   lugar: lugarTxt.text,
-    //   fecha: fechaTxt.text,
-    //   hora: horaTxt.text,
-    //   corrigio: corrigioSelected.value.toString(),
-    //   tipoEventoId: idTipoEvento,
-    //   tipoEventoNombre: tipoEventoTxt.text,
-    //   nivelRiesgoId: idNivelRiesgo,
-    //   nivelRiesgoNombre: nivelRiesgoTxt.text,
-    //   accionEjec: accionInmediataTxt.text,
-    //   fbEmpresaEspecializadaId: idEmpresa,
-    //   fbEmpresaEspecializadaNombre: empresaTxt.text,
-    //   latitud: currentPosition != null ? '${currentPosition!.latitude}' : '0',
-    //   longitud: currentPosition != null ? '${currentPosition!.longitude}' : '0',
-    //   fotoPreEventoNombre: img1Name ?? '',
-    //   fotoPreEventoRuta: img1 ?? '',
-    //   fotoEventoNombre: img2Name ?? '',
-    //   fotoEventoRuta: img2 ?? '',
-    //   fbEmpleadoId: idEmpleado,
-    //   fbEmpleadoNombre: empleadoTxt.text,
-    //   fbUeaPeId: idSede,
-    //   estado: '0',
-    // );
-
     context.read<DetailAycBloc>().add(
           EditActoCondicionEv(
-            file1: file1.value!,
-            file2: file2.value!,
+            file1: file1.value,
+            file2: file2.value,
           ),
         );
   }

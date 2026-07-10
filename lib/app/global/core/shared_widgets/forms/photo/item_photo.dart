@@ -31,6 +31,23 @@ class _ItemPhotoState extends State<ItemPhoto> {
 
   final ValueNotifier<bool> loading = ValueNotifier<bool>(false);
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.imageInitial != null) {
+      image.value = widget.imageInitial;
+    }
+  }
+
+  @override
+  void didUpdateWidget(ItemPhoto oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.imageInitial != oldWidget.imageInitial &&
+        widget.imageInitial != null) {
+      image.value = widget.imageInitial;
+    }
+  }
+
   Future<void> _loadImg(BuildContext context, AppController app) async {
     FocusScope.of(context).unfocus();
     loading.value = true;
@@ -113,9 +130,6 @@ class _ItemPhotoState extends State<ItemPhoto> {
   @override
   Widget build(BuildContext context) {
     final app = GetIt.I<AppController>();
-    if (widget.imageInitial != null) {
-      image.value = widget.imageInitial;
-    }
     return InkWell(
       onTap: () => _loadImg(context, app),
       child: Padding(

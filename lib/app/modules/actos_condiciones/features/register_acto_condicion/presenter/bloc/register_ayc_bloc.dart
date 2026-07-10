@@ -52,7 +52,7 @@ class RegisterAyCBloc extends Bloc<RegisterAyCEvent, RegisterAyCState> {
   final GetTipoEventosLocalUcImpl _getTipoEventosLocalUc;
   final GetNivelesRiesgosLocalUcImpl _getNivelesRiesgosLocalUc;
   final GetEmpleadosLocalUcImpl _getEmpleadosLocalUc;
-  late ActoCondicionModel _aycModel;
+  ActoCondicionModel _aycModel = ActoCondicionModel.fromJson({});
 
   Future<void> _onInitEv(
     InitEv ev,
@@ -167,26 +167,41 @@ class RegisterAyCBloc extends Bloc<RegisterAyCEvent, RegisterAyCState> {
       fbEmpleadoId: ev.fbEmpleadoId,
       fbEmpleadoNombre: ev.fbEmpleadoNombre,
       fbUeaPeId: ev.fbUeaPeId,
+      bsafId: ev.bsafID,
+      tarjetaRoja: ev.tarjetaRoja,
+      interiorMina: ev.interiorMina,
+      interiorMinaNivel: ev.interiorMinaNivel,
+      interiorMinaLabor: ev.interiorMinaLabor,
+      interiorMinaNumeroLabor: ev.interiorMinaNumeroLabor,
       estado: ev.estado,
     );
   }
 
   Future<void> _onSaveActoCondicionEv(
-    SaveActoCondicionEv ev,
-    ActosCondicionesEmitter emit,
-  ) async {
+      SaveActoCondicionEv ev,
+      ActosCondicionesEmitter emit,
+      ) async {
     emit(SavingActoCondicion());
 
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final imgResult1 = await _appController.transformImage(ev.file1);
-    final imgResult2 = await _appController.transformImage(ev.file2);
+    String? img1Name;
+    String? img1;
+    String? img2Name;
+    String? img2;
 
-    final img1Name = imgResult1.nameFile;
-    final img1 = imgResult1.base64;
+    if (ev.file1 != null) {
+      final imgResult1 = await _appController.transformImage(ev.file1!);
+      img1Name = imgResult1.nameFile;
+      img1 = imgResult1.base64;
+    }
 
-    final img2Name = imgResult2.nameFile;
-    final img2 = imgResult2.base64;
+    if (ev.file2 != null) {
+      final imgResult2 = await _appController.transformImage(ev.file2!);
+      img2Name = imgResult2.nameFile;
+      img2 = imgResult2.base64;
+    }
+
     final idUser = _authController.getID;
 
     final model = _aycModel.copyWith(
@@ -198,12 +213,14 @@ class RegisterAyCBloc extends Bloc<RegisterAyCEvent, RegisterAyCState> {
     );
 
     final result = await _saveActoCondicionStorageUc(model);
+
     emit(CloseLoading());
+
     result.fold(
-      (failure) => emit(
+          (failure) => emit(
         FailureSaveActoCondicion(error: failure.message, lastState: state),
       ),
-      (value) => emit(
+          (value) => emit(
         SavedActoCondicion(),
       ),
     );

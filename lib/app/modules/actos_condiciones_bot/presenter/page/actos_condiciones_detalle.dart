@@ -92,6 +92,7 @@ class _AyCBotAyCBotDetalleState extends State<AyCBotDetalle> {
 
 
 
+  final baseUploadUrl = "https://app.safe2biz.com:8080/safe2biz_ASP_DEMO/PATH_UPLOAD";
 
   @override
   void initState(){
@@ -213,14 +214,14 @@ class _AyCBotAyCBotDetalleState extends State<AyCBotDetalle> {
 
 
                               Container(
-                                width: MediaQuery.of(context).size.width*0.35,
+                                width: MediaQuery.of(context).size.width*0.3,
                                 height: 30,
 
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Container(
-                                      width: 100,
+                                      width: 110,
                                       child: ElevatedButton(
                                         style: ElevatedButton.styleFrom(
                                             shape: StadiumBorder(), backgroundColor: S2BColors.orange
@@ -314,7 +315,7 @@ class _AyCBotAyCBotDetalleState extends State<AyCBotDetalle> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                          width:  MediaQuery.of(context).size.width*0.35,
+                                          width:  MediaQuery.of(context).size.width*0.3,
                                           child: Row(
                                             children: [
                                               Text("Enviado desde:  ", style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold),),
@@ -753,141 +754,132 @@ class _AyCBotAyCBotDetalleState extends State<AyCBotDetalle> {
                                           ),
                                         ),
                                         Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(children: [
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
                                               Container(
                                                 color: Colors.white,
                                                 child: Padding(
                                                   padding: const EdgeInsets.all(8.0),
                                                   child: Column(
                                                     children: [
-
+                                                      // -------------------------------
+                                                      // EVIDENCIA 1
+                                                      // -------------------------------
                                                       Column(
                                                         mainAxisAlignment: MainAxisAlignment.center,
                                                         crossAxisAlignment: CrossAxisAlignment.center,
                                                         children: [
-
-
-
                                                           DottedBorder(
-                                                            padding:
-                                                            EdgeInsets.all(10.0),
+                                                            padding: const EdgeInsets.all(10.0),
                                                             color: Colors.white,
-                                                            radius:
-                                                            Radius.circular(10.0),
+                                                            radius: const Radius.circular(10.0),
                                                             strokeWidth: 2,
-                                                            dashPattern: [10, 5],
+                                                            dashPattern: const [10, 5],
                                                             customPath: (size) {
                                                               return Path()
                                                                 ..moveTo(10, 0)
-                                                                ..lineTo(
-                                                                    size.width - 10, 0)
+                                                                ..lineTo(size.width - 10, 0)
                                                                 ..arcToPoint(
-                                                                    Offset(
-                                                                        size.width, 10),
-                                                                    radius:
-                                                                    Radius.circular(
-                                                                        10))
-                                                                ..lineTo(size.width,
-                                                                    size.height - 10)
+                                                                  Offset(size.width, 10),
+                                                                  radius: const Radius.circular(10),
+                                                                )
+                                                                ..lineTo(size.width, size.height - 10)
                                                                 ..arcToPoint(
-                                                                    Offset(
-                                                                        size.width - 10,
-                                                                        size.height),
-                                                                    radius:
-                                                                    Radius.circular(
-                                                                        10))
-                                                                ..lineTo(
-                                                                    10, size.height)
+                                                                  Offset(size.width - 10, size.height),
+                                                                  radius: const Radius.circular(10),
+                                                                )
+                                                                ..lineTo(10, size.height)
                                                                 ..arcToPoint(
-                                                                    Offset(
-                                                                        0,
-                                                                        size.height -
-                                                                            10),
-                                                                    radius:
-                                                                    Radius.circular(
-                                                                        10))
+                                                                  Offset(0, size.height - 10),
+                                                                  radius: const Radius.circular(10),
+                                                                )
                                                                 ..lineTo(0, 10)
                                                                 ..arcToPoint(
-                                                                    Offset(10, 0),
-                                                                    radius:
-                                                                    Radius.circular(
-                                                                        10));
+                                                                  const Offset(10, 0),
+                                                                  radius: const Radius.circular(10),
+                                                                );
                                                             },
-
                                                             child: Container(
-                                                                alignment: Alignment.center,
-                                                                width: MediaQuery.of(context).size.width*0.80,
-                                                                child: ClipRRect(
-                                                                    borderRadius: BorderRadius.circular(5.0),
-                                                                    child: Image.network("https://app.safe2biz.com:8080/safe2biz_ASP_DEMO/PATH_UPLOAD/${snapshot.data![index]['imagen_uno']}"))
+                                                              alignment: Alignment.center,
+                                                              width: MediaQuery.of(context).size.width * 0.80,
+                                                              child: evidenciaImagen(
+                                                                context: context,
+                                                                baseUrl: baseUploadUrl,
+                                                                fileName: snapshot.data![index]['imagen_uno'],
+                                                              ),
                                                             ),
                                                           ),
-                                                          SizedBox(height: 2,),
-                                                          Container(
-                                                              width:  MediaQuery.of(context).size.width*1,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  Icon(Icons.camera_alt, color: Colors.grey, size: 16,),
-                                                                  SizedBox(width: 4,),
-                                                                  Text("Evidencia 1", style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold, color: Colors.grey),),
-                                                                ],
-                                                              )),
-
+                                                          const SizedBox(height: 2),
+                                                          SizedBox(
+                                                            width: MediaQuery.of(context).size.width * 1,
+                                                            child: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: const [
+                                                                Icon(Icons.camera_alt, color: Colors.grey, size: 16),
+                                                                SizedBox(width: 4),
+                                                                Text(
+                                                                  "Evidencia 1",
+                                                                  style: TextStyle(
+                                                                    fontSize: 14,
+                                                                    fontWeight: FontWeight.bold,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
 
-                                                      Divider(height: 30, thickness: 2,),
+                                                      const Divider(height: 30, thickness: 2),
 
-
-
+                                                      // -------------------------------
+                                                      // EVIDENCIA 2
+                                                      // -------------------------------
                                                       Column(
                                                         mainAxisAlignment: MainAxisAlignment.center,
                                                         crossAxisAlignment: CrossAxisAlignment.center,
                                                         children: [
-
-                                                          SizedBox(height: 6,),
+                                                          const SizedBox(height: 6),
                                                           Container(
-                                                            //path upload y url_fotos
-                                                            //se va a ver en una carpeta asp
-
-                                                              alignment: Alignment.center,
-                                                              width: MediaQuery.of(context).size.width*0.80,
-
-
-                                                              child: ClipRRect(
-                                                                borderRadius: BorderRadius.circular(5.0),
-                                                                child: Image.network("https://app.safe2biz.com:8080/safe2biz_ASP_DEMO/PATH_UPLOAD/${snapshot.data![index]['imagen_dos']}",
-                                                                  errorBuilder: (context, exception, stackTrack) => Column(
-                                                                    children: [
-                                                                      Image.asset('assets/gif/no_evidence.png', width: MediaQuery.of(context).size.width*0.4,),
-                                                                      SizedBox(height: 5,),
-                                                                    ],
-                                                                  )
-                                                                  ,),
-                                                              ),
+                                                            alignment: Alignment.center,
+                                                            width: MediaQuery.of(context).size.width * 0.80,
+                                                            child: evidenciaImagen(
+                                                              context: context,
+                                                              baseUrl: baseUploadUrl,
+                                                              fileName: snapshot.data![index]['imagen_dos'],
+                                                            ),
                                                           ),
-                                                          SizedBox(height: 10,),
-                                                          Container(
-                                                              width:  MediaQuery.of(context).size.width*1,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                                children: [
-                                                                  Icon(Icons.camera_alt, color: Colors.grey , size: 16, ),
-                                                                  SizedBox(width: 4,),
-                                                                  Text("Evidencia 2", style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold, color: Colors.grey),),
-                                                                ],
-                                                              )),
-
+                                                          const SizedBox(height: 10),
+                                                          SizedBox(
+                                                            width: MediaQuery.of(context).size.width * 1,
+                                                            child: Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+                                                              children: const [
+                                                                Icon(Icons.camera_alt, color: Colors.grey, size: 16),
+                                                                SizedBox(width: 4),
+                                                                Text(
+                                                                  "Evidencia 2",
+                                                                  style: TextStyle(
+                                                                    fontSize: 14,
+                                                                    fontWeight: FontWeight.bold,
+                                                                    color: Colors.grey,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
                                                         ],
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                               ),
-                                            ],)
-                                        ),
+                                            ],
+                                          ),
+                                        )
+
                                       ],
                                     ),
                                     expanded:ExpandableButton(
@@ -1253,8 +1245,6 @@ class _DesviacionesTextFormState extends State<DesviacionesTextForm> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     // Aquí construirás tu UI, incluyendo el TextFormField
@@ -1613,4 +1603,78 @@ class _AreaTextFormState extends State<AreaTextForm> {
       // Más configuraciones del diálogo...
     );
   }
+}
+
+
+Widget evidenciaPlaceholder(BuildContext context) {
+  return SizedBox(
+    height: 130,
+    width: double.infinity,
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.camera_alt_outlined,
+            size: 72,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            "Sin evidencias",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+
+Widget evidenciaImagen({
+  required BuildContext context,
+  required String baseUrl,     // ej: "https://app.safe2biz.com:8080/safe2biz_ASP_DEMO/PATH_UPLOAD"
+  required String? fileName,   // ej: snapshot.data![index]['imagen_uno']
+}) {
+  final name = (fileName ?? "").trim();
+
+  // Casos típicos que vienen de BD/JSON
+  final sinEvidencia = name.isEmpty || name.toLowerCase() == "null";
+
+  if (sinEvidencia) {
+    return evidenciaPlaceholder(context);
+  }
+
+  final url = "$baseUrl/$name";
+
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(5.0),
+    child: Image.network(
+      url,
+      fit: BoxFit.cover,
+      // Si rompe por TLS/handshake, 404, bytes corruptos, etc.
+      errorBuilder: (context, error, stackTrace) {
+        return evidenciaPlaceholder(context);
+      },
+      // Opcional: mientras carga
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return SizedBox(
+          height: 160,
+          child: Center(
+            child: CircularProgressIndicator(
+              value: loadingProgress.expectedTotalBytes != null
+                  ? loadingProgress.cumulativeBytesLoaded /
+                  (loadingProgress.expectedTotalBytes ?? 1)
+                  : null,
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }

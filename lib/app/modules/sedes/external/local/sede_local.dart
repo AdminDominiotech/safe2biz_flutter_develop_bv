@@ -40,6 +40,7 @@ class SedeLocal implements SedeLocalDatasource {
           'codigo': c.code,
           'nombre': c.name,
           'sc_user_id': c.userId,
+          'fb_uea_base_id': c.fb_uea_base_id,
         });
       }
 

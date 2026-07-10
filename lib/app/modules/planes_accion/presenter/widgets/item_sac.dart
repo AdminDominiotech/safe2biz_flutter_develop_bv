@@ -359,7 +359,7 @@ class _ItemSACState extends State<ItemSAC> {
         } else if (!baseApp.startsWith('https://')) {
           baseApp = 'https://$baseApp';
         }
-      } else if (baseApp.contains(':8084')) {
+      } else if (baseApp.contains(':8083')) {
         // Ambiente legacy: mantenemos HTTP (para evitar TLS en 8084)
         if (baseApp.startsWith('https://')) {
           baseApp = baseApp.replaceFirst('https://', 'http://');

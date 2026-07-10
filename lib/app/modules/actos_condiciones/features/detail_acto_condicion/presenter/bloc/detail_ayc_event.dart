@@ -46,6 +46,12 @@ class ChangeDataEv extends DetailAycEvent {
     this.fbEmpleadoId,
     this.fbEmpleadoNombre,
     this.fbUeaPeId,
+    this.bsafId,
+    this.tarjetaRoja,
+    this.interiorMina,
+    this.interiorMinaNivel,
+    this.interiorMinaLabor,
+    this.interiorMinaNumeroLabor,
     this.estado,
   });
 
@@ -78,6 +84,12 @@ class ChangeDataEv extends DetailAycEvent {
   final String? fbEmpleadoId;
   final String? fbEmpleadoNombre;
   final String? fbUeaPeId;
+  final String? bsafId;
+  final String? tarjetaRoja;
+  final String? interiorMina;
+  final String? interiorMinaNivel;
+  final String? interiorMinaLabor;
+  final String? interiorMinaNumeroLabor;
   final String? estado;
 
   @override
@@ -111,18 +123,24 @@ class ChangeDataEv extends DetailAycEvent {
         fbEmpleadoId,
         fbEmpleadoNombre,
         fbUeaPeId,
+        bsafId,
+        tarjetaRoja,
+        interiorMina,
+        interiorMinaNivel,
+        interiorMinaLabor,
+        interiorMinaNumeroLabor,
         estado,
       ];
 }
 
 class EditActoCondicionEv extends DetailAycEvent {
-  const EditActoCondicionEv({required this.file1, required this.file2});
+  const EditActoCondicionEv({this.file1, this.file2});
 
-  final File file1;
-  final File file2;
+  final File? file1;
+  final File? file2;
 
   @override
-  List<Object> get props => [file1, file2];
+  List<Object?> get props => [file1, file2];
 }
 
 class UploadActoCondicionEv extends DetailAycEvent {
