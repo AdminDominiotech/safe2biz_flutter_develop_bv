@@ -199,7 +199,6 @@ class _ItemSACState extends State<ItemSAC> {
                         const SizedBox(height: 15),
 
 
-
                         Row(
                           children: [
                             const Text(
@@ -213,7 +212,7 @@ class _ItemSACState extends State<ItemSAC> {
                               child: Text(
                                 widget.planAccion.responsableVerificador.isNotEmpty
                                     ? widget.planAccion.responsableVerificador
-                                    : 'Eliana Torres',
+                                    : ' - ',
                                 style: const TextStyle(fontSize: 13, color: Colors.grey,fontWeight: FontWeight.bold, ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

@@ -649,9 +649,6 @@ class _FormDetailAyCState extends State<FormDetailAyC> {
   }
 
 
-
-
-
   void _selectGerencias(BuildContext context) async {
     final idSede = LocalPreferences.prefs?.getString('current_sede_id') ?? '0';
     final newList =
