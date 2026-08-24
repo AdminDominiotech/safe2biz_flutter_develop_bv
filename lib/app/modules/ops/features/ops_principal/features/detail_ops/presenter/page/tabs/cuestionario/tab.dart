@@ -48,7 +48,7 @@ class _TabCuestionarioState extends State<TabCuestionario>
                       return ExpansionTile(
                         initiallyExpanded: true,
                         leading: Icon(
-                          FontAwesomeIcons.caretDown,
+                          FontAwesomeIcons.caretDown.data,
                           // color: S2BColors.dangerColor,
                         ),
                         collapsedIconColor: S2BColors.silver,
@@ -70,7 +70,7 @@ class _TabCuestionarioState extends State<TabCuestionario>
                               return ExpansionTile(
                                 initiallyExpanded: true,
                                 leading: Icon(
-                                  FontAwesomeIcons.caretDown,
+                                  FontAwesomeIcons.caretDown.data,
                                 ),
                                 collapsedIconColor: S2BColors.silver,
                                 iconColor: S2BColors.primaryColor,
@@ -137,7 +137,7 @@ class _TabCuestionarioState extends State<TabCuestionario>
                                           fontWeight: FontWeight.w500,
                                         ),
                                         trailing: Icon(
-                                          FontAwesomeIcons.caretRight,
+                                          FontAwesomeIcons.caretRight.data,
                                           color: S2BColors.graySecondary,
 
                                         ),

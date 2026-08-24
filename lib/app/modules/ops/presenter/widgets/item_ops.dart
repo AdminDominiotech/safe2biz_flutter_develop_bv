@@ -72,7 +72,7 @@ class ItemOps extends StatelessWidget {
             fontWeight: FontWeight.w400,
           ),
           trailing: Icon(
-            FontAwesomeIcons.caretRight,
+            FontAwesomeIcons.caretRight.data,
             color: S2BColors.primaryColor,
           ),
         ),

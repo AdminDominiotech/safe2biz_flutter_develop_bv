@@ -72,8 +72,8 @@ class SliverBarBack extends SliverPersistentHeaderDelegate {
             BtnCircular(
               size: size,
               percent: percent,
-              icon: const Icon(
-                FontAwesomeIcons.plus,
+              icon: Icon(
+                FontAwesomeIcons.plus.data,
               ),
               onTap: onFloatingTap,
             ),
@@ -162,8 +162,8 @@ class ButtonBack extends StatelessWidget {
             if (showAction)
               IconButton(
                 onPressed: onTapAction,
-                icon: const Icon(
-                  FontAwesomeIcons.upload,
+                icon: Icon(
+                  FontAwesomeIcons.upload.data,
                   size: 18,
                   color: S2BColors.white,
                 ),

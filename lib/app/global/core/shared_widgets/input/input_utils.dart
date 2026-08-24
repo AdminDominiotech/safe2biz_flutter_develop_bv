@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 typedef InputTextValidator<T> = String? Function(T value);
 
@@ -11,7 +12,7 @@ class InputTrailingIcon {
     this.backgroundColor,
   });
 
-  final IconData icon;
+  final FaIconData icon;
   final Color? color;
   final double? size;
   final Color? backgroundColor;
@@ -25,7 +26,7 @@ class InputLeadingIcon {
     this.backgroundColor,
   });
 
-  final IconData icon;
+  final FaIconData icon;
   final Color? color;
   final double? size;
   final Color? backgroundColor;

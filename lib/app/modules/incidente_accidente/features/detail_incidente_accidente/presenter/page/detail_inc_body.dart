@@ -37,8 +37,8 @@ class DetailINCBody extends StatelessWidget {
             },
             icon: Icon(
               incidenteAccidente.estado == '0'
-                  ? FontAwesomeIcons.upload
-                  : FontAwesomeIcons.trash,
+                  ? FontAwesomeIcons.upload.data
+                  : FontAwesomeIcons.trash.data,
               color: S2BColors.white,
               size: 18,
             ),
