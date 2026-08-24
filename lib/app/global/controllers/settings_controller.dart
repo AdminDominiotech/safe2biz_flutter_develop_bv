@@ -93,7 +93,7 @@ class SettingsController {
 
       final result = await db.insert(
         LocalSqlite.TABLE_SETTINGS,
-        {'ip': 'https://desafe2biz.buenaventura.pe:7543/', 'name_company': 'BUENAVENTURA', 'ARROBA_MOVIL': 'buenaventuras2b'},
+        {'ip': 'testsafe2biz.buenaventura.pe:7643', 'name_company': 'BUENAVENTURA', 'ARROBA_MOVIL': 'buenaventuras2b'},
       );
 
       if (result > 0) {

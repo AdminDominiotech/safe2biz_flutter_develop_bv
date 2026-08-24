@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobile_safe2bizapp_core/mobile_safe2bizapp_core.dart';
+import 'package:safe2biz/app/global/core/http/insecure_http_overrides.dart';
 import 'package:safe2biz/app/modules/actos_condiciones/data/datasource/api/actos_condiciones_api_datasource.dart';
 import 'package:safe2biz/app/modules/actos_condiciones/domain/entities/acto_condicion.dart';
 import 'package:safe2biz/app/global/core/errors/exceptions.dart';
@@ -47,11 +48,7 @@ class ActosCondicionesApi implements ActosCondicionesApiDatasource {
 
     final adapter = dio.httpClientAdapter as DefaultHttpClientAdapter;
     adapter.onHttpClientCreate = (HttpClient client) {
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
-        debugPrint('badCertificateCallback host=$host port=$port');
-        return host == 'desafe2biz.buenaventura.pe';
-      };
+      client.badCertificateCallback = InsecureHosts.badCertificateCallback;
       return client;
     };
 

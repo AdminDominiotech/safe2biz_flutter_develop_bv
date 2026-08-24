@@ -901,6 +901,7 @@ Future<Database> _initDB() async {
             );
           ''');
 
+        
         await db.execute('''
            CREATE TABLE $TABLE_RESPONSABLE (
             fb_empleado_id TEXT(15),

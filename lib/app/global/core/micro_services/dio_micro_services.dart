@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio/adapter.dart';
 import 'package:safe2biz/app/global/core/env/env.dart';
+import 'package:safe2biz/app/global/core/http/insecure_http_overrides.dart';
 
 class DioMicroServices {
   static final DioMicroServices _singleton = DioMicroServices._internal();
@@ -64,11 +65,7 @@ class DioMicroServices {
     adapter.onHttpClientCreate = (HttpClient client) {
       print('[Dio] onHttpClientCreate ejecutado');
 
-      client.badCertificateCallback =
-          (X509Certificate cert, String host, int port) {
-        print('[Dio] badCertificateCallback host=$host port=$port');
-        return host == 'desafe2biz.buenaventura.pe';
-      };
+      client.badCertificateCallback = InsecureHosts.badCertificateCallback;
 
       return client;
     };

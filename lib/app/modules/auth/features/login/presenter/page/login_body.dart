@@ -221,7 +221,7 @@ class _LoginBodyState extends State<LoginBody> {
                                             height: S2BSpacing.lg,
                                           ),
 
-                                              Text('Ver. 1.4.0-20260429', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),),
+                                              Text('Ver. 1.4.1-20260824', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),),
 
 
 

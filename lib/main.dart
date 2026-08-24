@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_safe2bizapp_core/mobile_safe2bizapp_core.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:safe2biz/app/global/core/env/env.dart';
+import 'package:safe2biz/app/global/core/http/insecure_http_overrides.dart';
 import 'package:safe2biz/app/modules/init/app.dart';
 import 'package:safe2biz/app/global/core/injection/injection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +37,9 @@ Future<void> deleteDatabaseFile() async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Acepta los certificados de la CA interna de Buenaventura en toda la app.
+  HttpOverrides.global = Safe2BizHttpOverrides();
+
   checkForUpdate();
   await deleteDatabaseFile();
 
@@ -53,7 +59,7 @@ Future<void> main() async {
     await db.insert(
       LocalSqlite.TABLE_SETTINGS,
       {
-        'ip': 'https://desafe2biz.buenaventura.pe:7543',
+        'ip': 'testsafe2biz.buenaventura.pe:7643',
         'name_company': 'BUENAVENTURA',
         'ARROBA_MOVIL': 'buenaventuras2b',
       },
