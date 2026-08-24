@@ -157,16 +157,16 @@ class ItemINC extends StatelessWidget {
                       child: incidenteAccidente.estado == '0'
                           ? InkWell(
                         onTap: () => _upload(context, incidenteAccidente), // Llamar a _upload cuando se toca el icono de subir
-                        child: const Icon(
-                          FontAwesomeIcons.upload,
+                        child: Icon(
+                          FontAwesomeIcons.upload.data,
                           color: S2BColors.primaryColor,
                           size: 15,
                         ),
                       )
                           : InkWell(
                         onTap: () => _delete(context), // Llamar a _delete cuando se toca el icono de eliminar
-                        child: const Icon(
-                          FontAwesomeIcons.trash,
+                        child: Icon(
+                          FontAwesomeIcons.trash.data,
                           color: S2BColors.dangerColor,
                           size: 15,
                         ),

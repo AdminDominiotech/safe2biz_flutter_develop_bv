@@ -167,7 +167,7 @@ class _InputTextFieldState extends State<InputTextField> {
                             horizontal: 8,
                           ),
                           child: Icon(
-                            widget.leadingIcon!.icon,
+                            widget.leadingIcon!.icon.data,
                             color: widget.leadingIcon!.color ??
                                 _inputStyle.colorBorder,
                             size: widget.leadingIcon!.size,
@@ -248,8 +248,8 @@ class _InputTextFieldState extends State<InputTextField> {
                             ),
                             child: Icon(
                               !showText
-                                  ? FontAwesomeIcons.eyeLowVision
-                                  : FontAwesomeIcons.eye,
+                                  ? FontAwesomeIcons.eyeLowVision.data
+                                  : FontAwesomeIcons.eye.data,
                               color: S2BColors.white,
                               size: 20,
                             ),
@@ -270,7 +270,7 @@ class _InputTextFieldState extends State<InputTextField> {
                             horizontal: 8,
                           ),
                           child: Icon(
-                            widget.trailingIcon!.icon,
+                            widget.trailingIcon!.icon.data,
                             color: widget.trailingIcon!.color ??
                                 _inputStyle.colorBorder,
                             size: widget.trailingIcon!.size,

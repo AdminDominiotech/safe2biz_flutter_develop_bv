@@ -14,13 +14,13 @@ class BtnSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: const Padding(
-        padding: EdgeInsets.only(
+      child: Padding(
+        padding: const EdgeInsets.only(
           left: S2BSpacing.md,
           top: S2BSpacing.xxl,
         ),
         child: Icon(
-          FontAwesomeIcons.gear,
+          FontAwesomeIcons.gear.data,
           color: S2BColors.white,
         ),
       ),

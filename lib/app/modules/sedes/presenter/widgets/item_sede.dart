@@ -44,7 +44,7 @@ class ItemSede extends StatelessWidget {
                 child: SizedBox(
                   width: 40.0,
                   /*child: Icon(
-                    FontAwesomeIcons.building,
+                    FontAwesomeIcons.building.data,
                     color: S2BColors.orange,
                   ),*/
                   child: ImageIcon(

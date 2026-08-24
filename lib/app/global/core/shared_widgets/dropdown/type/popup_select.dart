@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:safe2biz/app/global/core/core.dart';
 import 'package:safe2biz/app/global/core/shared_widgets/dropdown/type/_option_builder.dart';
 import 'package:safe2biz/app/ui/module_ui.dart';
@@ -165,7 +166,7 @@ class _SelectPopupState<T> extends State<_SelectPopup<T>> {
                             onChanged: onChange,
                             placeholder: UiValues.quien,
                             trailingIcon: const InputTrailingIcon(
-                              Icons.search,
+                              FontAwesomeIcons.magnifyingGlass,
                               color: S2BColors.primaryColor,
                             ),
                           ),

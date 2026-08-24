@@ -94,7 +94,7 @@ class _DrawerDerState extends State<DrawerMenu> {
                       const SincronizarPage(),
                     );
                   },
-                  icon: FontAwesomeIcons.cloudArrowDown,
+                  icon: FontAwesomeIcons.cloudArrowDown.data,
                   title: 'Sincronizar',
                 ),
                 ItemMenu(
@@ -105,12 +105,12 @@ class _DrawerDerState extends State<DrawerMenu> {
                       (route) => false,
                     );
                   },
-                  icon: FontAwesomeIcons.industry,
+                  icon: FontAwesomeIcons.industry.data,
                   title: 'Cambiar Sede',
                 ),
                 ItemMenu(
                   ontap: () => _logout(context),
-                  icon: FontAwesomeIcons.rightFromBracket,
+                  icon: FontAwesomeIcons.rightFromBracket.data,
                   title: 'Cerrar Sesión',
                 ),
               ],

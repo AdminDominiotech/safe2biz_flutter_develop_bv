@@ -81,20 +81,20 @@ class _ItemOpsState extends State<ItemOps> {
         bgColor   = const Color(0xFFC8F7C5); // verde suave
         textColor = const Color(0xFF1B5E20);
         label     = 'Enviado';
-        iconRight = FontAwesomeIcons.trash;
+        iconRight = FontAwesomeIcons.trash.data;
         break;
       case EstadoItem.completado:
         bgColor   = const Color(0xFFC8F7C5); // verde pastel
         textColor = const Color(0xFF1B5E20);
         label     = 'Completo';              // ← aquí
-        iconRight = FontAwesomeIcons.check;  // o el que prefieras
+        iconRight = FontAwesomeIcons.check.data;  // o el que prefieras
         break;
       case EstadoItem.incompleto:
       default:
         bgColor   = const Color(0xFFFEF16A); // amarillo pastel
         textColor = const Color(0xFF856404);
         label     = 'Incompleto';
-        iconRight = FontAwesomeIcons.upload;
+        iconRight = FontAwesomeIcons.upload.data;
         break;
     }
 
@@ -257,8 +257,8 @@ class _ItemOpsState extends State<ItemOps> {
                                 },
                                 child: Icon(
                                   _estado == EstadoItem.enviado
-                                      ? FontAwesomeIcons.trash
-                                      : FontAwesomeIcons.upload,
+                                      ? FontAwesomeIcons.trash.data
+                                      : FontAwesomeIcons.upload.data,
                                   color: _estado == EstadoItem.enviado
                                       ? S2BColors.dangerColor
                                       : S2BColors.primaryColor,

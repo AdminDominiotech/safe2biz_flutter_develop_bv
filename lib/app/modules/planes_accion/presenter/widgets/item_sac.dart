@@ -73,7 +73,7 @@ class _ItemSACState extends State<ItemSAC> {
         onPressed: _eliminando ? null : () => _onDelete(widget.planAccion),
         icon: _eliminando
             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(FontAwesomeIcons.trash, color: Colors.red, size: 16),
+            : Icon(FontAwesomeIcons.trash.data, color: Colors.red, size: 16),
         tooltip: 'Eliminar',
       );
     }
@@ -82,7 +82,7 @@ class _ItemSACState extends State<ItemSAC> {
         onPressed: _subiendo ? null : _uploadPlan,
         icon: _subiendo
             ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(FontAwesomeIcons.upload, color: Colors.indigo, size: 16),
+            : Icon(FontAwesomeIcons.upload.data, color: Colors.indigo, size: 16),
         tooltip: 'Subir',
       );
     }

@@ -203,7 +203,7 @@ class _FormAyCState extends State<FormAyC> {
                   },
                   placeholder: UiValues.quien,
                   trailingIcon: const InputTrailingIcon(
-                    Icons.search,
+                    FontAwesomeIcons.magnifyingGlass,
                     color: S2BColors.primaryColor,
                   ),
                 ),

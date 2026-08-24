@@ -15,7 +15,7 @@ class BtnSettings extends StatelessWidget {
         top: S2BSpacing.xxl,
       ),
       child: Icon(
-        FontAwesomeIcons.gear,
+        FontAwesomeIcons.gear.data,
         color: S2BColors.silver.withOpacity(0.7),
       ),
     );

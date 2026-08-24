@@ -93,7 +93,7 @@ class _SyncDataWidgetState extends State<_SyncDataWidget> {
             child: IconButton(
               padding: EdgeInsets.all(0),
               icon: Icon(
-                FontAwesomeIcons.xmark,
+                FontAwesomeIcons.xmark.data,
                 size: S2BSpacing.xl,
                 color: S2BColors.primaryColor,
               ),

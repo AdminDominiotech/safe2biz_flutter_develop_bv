@@ -57,8 +57,8 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
   StreamSubscription<Position>? _positionSubscription;
 
   final _changedIcon = ValueNotifier<bool>(false);
-  final iconExpand = Icon(FontAwesomeIcons.expand);
-  final iconCompress = Icon(FontAwesomeIcons.compress);
+  final iconExpand = Icon(FontAwesomeIcons.expand.data);
+  final iconCompress = Icon(FontAwesomeIcons.compress.data);
   @override
   void initState() {
     _animateController = AnimationController(
@@ -70,7 +70,7 @@ class _MapViewState extends State<MapView> with SingleTickerProviderStateMixin {
       ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           widget.onExpanded!.call(true);
-        }
+        } 
         if (status == AnimationStatus.dismissed) {
           widget.onExpanded!.call(false);
         }

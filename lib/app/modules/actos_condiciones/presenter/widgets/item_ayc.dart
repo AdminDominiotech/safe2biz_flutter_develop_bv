@@ -152,16 +152,16 @@ class ItemAyC extends StatelessWidget {
                                 ? InkWell(
                                     onTap: () =>
                                         _upload(context, actoCondicion),
-                                    child: const Icon(
-                                      FontAwesomeIcons.upload,
+                                    child: Icon(
+                                      FontAwesomeIcons.upload.data,
 
                                       size: 15,
                                     ),
                                   )
                                 : InkWell(
                                     onTap: () => _delete(context),
-                                    child: const Icon(
-                                      FontAwesomeIcons.trash,
+                                    child: Icon(
+                                      FontAwesomeIcons.trash.data,
                                       color: Colors.red,
                                       size: 15,
                                     ),
