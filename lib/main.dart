@@ -59,11 +59,25 @@ Future<void> main() async {
     await db.insert(
       LocalSqlite.TABLE_SETTINGS,
       {
-        'ip': 'testsafe2biz.buenaventura.pe:7643',
+        'ip': 'https://safe2biz.buenaventura.pe:7443',
         'name_company': 'BUENAVENTURA',
-        'ARROBA_MOVIL': 'buenaventuras2b',
+        'ARROBA_MOVIL': 's2buenaventura',
       },
     );
+  } else {
+    // Migración: instalaciones que aún apuntan al host de test pasan al de producción.
+    final int migrated = await db.update(
+      LocalSqlite.TABLE_SETTINGS,
+      {
+        'ip': 'https://safe2biz.buenaventura.pe:7443',
+        'ARROBA_MOVIL': 's2buenaventura',
+      },
+      where: 'ip LIKE ?',
+      whereArgs: ['%testsafe2biz.buenaventura.pe%'],
+    );
+    if (migrated > 0) {
+      print('[Settings] Host migrado a safe2biz.buenaventura.pe:7443 ($migrated registro/s)');
+    }
   }
 
   // Carga el host para Env

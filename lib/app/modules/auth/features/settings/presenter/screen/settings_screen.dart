@@ -9,9 +9,9 @@ class SettingsScreen extends StatelessWidget {
   SettingsScreen({Key? key}) : super(key: key);
   final formKey = GlobalKey<FormState>();
   final ipTxt =
-      TextEditingController(text: 'testsafe2biz.buenaventura.pe:7643');
+      TextEditingController(text: 'https://safe2biz.buenaventura.pe:7443');
   final companyTxt = TextEditingController(text: 'BUENAVENTURA');
-  final arrobaTxt = TextEditingController(text: 'buenaventuras2b');
+  final arrobaTxt = TextEditingController(text: 's2buenaventura');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
