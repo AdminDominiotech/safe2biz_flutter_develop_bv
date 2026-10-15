@@ -81,7 +81,9 @@ class _LoginBodyState extends State<LoginBody> {
             if (state is Successful) {
               Nav.replace(
                 context,
-                const SedePage(),
+                // autoRefresh: al venir del login se refresca la lista de
+                // sedes desde el servidor para el usuario que acaba de entrar.
+                const SedePage(autoRefresh: true),
               );
               return;
             }
@@ -221,7 +223,7 @@ class _LoginBodyState extends State<LoginBody> {
                                             height: S2BSpacing.lg,
                                           ),
 
-                                              Text('Ver. 1.4.1-20260824', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),),
+                                              Text('Ver. 1.5.0-20261016', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.w400, fontSize: 11),),
 
 
 

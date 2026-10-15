@@ -48,7 +48,9 @@ class SedeBloc extends Bloc<CompanyEvent, SedeState> {
         }
       },
     );
-    if (sedes.isNotEmpty) {
+    // Con [forceRemote] (entrada desde el login) no se usa el atajo de cache:
+    // siempre se pide la lista al servidor para el usuario recien logueado.
+    if (sedes.isNotEmpty && !ev.forceRemote) {
       emit(Successful(sedes: sedes));
       return;
     }
@@ -61,6 +63,11 @@ class SedeBloc extends Bloc<CompanyEvent, SedeState> {
     );
 
     if (result is Failure) {
+      // Sin red pero con cache del mismo usuario: se muestra lo guardado.
+      if (sedes.isNotEmpty) {
+        emit(Successful(sedes: sedes));
+        return;
+      }
       emit(
         FailureGetCompanies(
           error: result.message,

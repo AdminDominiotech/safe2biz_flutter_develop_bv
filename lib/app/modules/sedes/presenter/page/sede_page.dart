@@ -8,7 +8,12 @@ import 'package:safe2biz/app/modules/sedes/presenter/page/sede_body.dart';
 import 'package:safe2biz/app/modules/sedes/domain/usecases/usecases.dart';
 
 class SedePage extends StatelessWidget {
-  const SedePage({Key? key}) : super(key: key);
+  /// [autoRefresh] se activa cuando se llega desde el inicio de sesion: la
+  /// lista de sedes se vuelve a pedir al servidor en lugar de leer la cache,
+  /// que puede corresponder al usuario anterior.
+  const SedePage({Key? key, this.autoRefresh = false}) : super(key: key);
+
+  final bool autoRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,7 @@ class SedePage extends StatelessWidget {
         saveSedesStorageUc: GetIt.I<SaveSedesLocalUcImpl>(),
         loginCheckUc: GetIt.I<LoginCheckUcImpl>(),
         authController: GetIt.I<AuthController>(),
-      )..add(InitEv()),
+      )..add(InitEv(forceRemote: autoRefresh)),
       child: SedeBody(),
     );
   }

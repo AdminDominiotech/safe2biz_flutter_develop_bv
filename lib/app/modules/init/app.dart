@@ -26,6 +26,10 @@ class Safe2BizApp extends StatelessWidget {
         Locale('es', 'ES'),
       ],
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        appBarTheme: s2bAppBarTheme,
+        elevatedButtonTheme: s2bElevatedButtonTheme,
+      ),
       darkTheme: themeData,
       navigatorObservers: [
         BotToastNavigatorObserver(),

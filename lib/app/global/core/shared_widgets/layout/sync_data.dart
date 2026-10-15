@@ -119,6 +119,10 @@ class _SyncDataWidgetState extends State<_SyncDataWidget> {
             child: Padding(
               padding: const EdgeInsets.only(top: S2BSpacing.md),
               child: ElevatedButton(
+                // Conserva el estilo por defecto (fondo claro) frente al tema blanco.
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
                 onPressed: widget.onTap,
                 child: Text("Ir a Sincronizar"),
               )

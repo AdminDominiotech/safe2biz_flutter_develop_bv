@@ -962,6 +962,7 @@ class _AgregarEntregaState extends State<AgregarEntrega> {
                                       width: 150,
                                       child: TextButton.icon(
                                           style: ElevatedButton.styleFrom(
+                                              foregroundColor: Colors.white,
                                               backgroundColor:
                                                   Color(0xff09357E)),
                                           onPressed: () async {
@@ -1000,6 +1001,7 @@ class _AgregarEntregaState extends State<AgregarEntrega> {
                                         width: 130,
                                         child: TextButton.icon(
                                             style: ElevatedButton.styleFrom(
+                                                foregroundColor: Colors.white,
                                                 backgroundColor: Color(
                                                     0xffEF8E3B) //, 'foto_evidencia' = '${base64Image}'
                                                 ),

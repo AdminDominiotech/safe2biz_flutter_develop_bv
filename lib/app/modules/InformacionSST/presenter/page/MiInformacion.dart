@@ -1276,6 +1276,10 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           content: Text("No se pudo encontrar un empleado con DNI: $documento"),
           actions: <Widget>[
             ElevatedButton(
+              // Conserva el estilo por defecto (fondo claro) frente al tema blanco.
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+              ),
               onPressed: () => Navigator.pop(context),
               child: Text("Cerrar"),
             ),

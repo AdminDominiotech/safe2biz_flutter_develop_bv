@@ -59,6 +59,18 @@ class AuthController {
   Future<bool> login(User newUser) async {
     try {
       final db = await sqlite.database;
+
+      // Si el usuario que inicia sesion es distinto al que quedo guardado, la
+      // cache local de sedes pertenece al usuario anterior y no debe verse.
+      // Se purga aqui para que ninguna pantalla alcance a leerla.
+      final previousRows = await db.query(LocalSqlite.TABLE_USER);
+      if (previousRows.isNotEmpty) {
+        final previousId = '${previousRows.last['SC_USER_ID'] ?? ''}';
+        if (previousId.isNotEmpty && previousId != newUser.uuid) {
+          await db.delete(LocalSqlite.TABLE_FB_UEA_PE);
+        }
+      }
+
       await db.delete('user');
       final results1 = await db.insert('user', {
         'id': 1,

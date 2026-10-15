@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:safe2biz/app/global/core/core.dart';
 
+// Los AppBar de la app usan fondos azul oscuro: título e iconos en blanco.
+// (Antes esto venía de un parche local al SDK de Flutter.)
+const AppBarTheme s2bAppBarTheme = AppBarTheme(foregroundColor: Colors.white);
+
+// Texto e iconos blancos para los ElevatedButton que no definen su propio color.
+ElevatedButtonThemeData get s2bElevatedButtonTheme => ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(foregroundColor: Colors.white),
+    );
+
 ThemeData get themeData => ThemeData(
       visualDensity: VisualDensity.adaptivePlatformDensity,
       primaryColor: S2BColors.primaryColor,
@@ -15,7 +24,9 @@ ThemeData get themeData => ThemeData(
       scaffoldBackgroundColor: S2BColors.background, //backgroundColor pages
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: S2BColors.primaryColor,
-      )
+      ),
+      appBarTheme: s2bAppBarTheme,
+      elevatedButtonTheme: s2bElevatedButtonTheme
       // bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       //   //==========PROPETIES==============
       //   showSelectedLabels: true,

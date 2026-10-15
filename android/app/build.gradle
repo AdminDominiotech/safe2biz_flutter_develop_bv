@@ -36,7 +36,7 @@ android {
                 : null
         minSdkVersion(minSdkFromFlutter ?: MIN_SDK_FALLBACK)
 
-        targetSdk = 35
+        targetSdk = 36
         versionCode FLUTTER_VERSION_CODE
         versionName FLUTTER_VERSION_NAME
 
